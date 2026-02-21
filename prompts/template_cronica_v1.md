@@ -28,8 +28,8 @@ Critérios de Conteúdo (O que incluir):
 2. Conversas paralelas que não agregam à história ou ao humor da mesa.
 
 **Após o resumo da sessão, adicione os seguintes pontos:**
-## NPCs encontrados: descreva brevemente os NPCs encontrados, por exemplo, “Kalyth, guerreira orc, e Tasha, maga poderosa”.
-## Itens obtidos: o grupo obteve algum item importante na sessão?
-## Momentos inspiradores: “Inspiração” é um termo usado no jogo para quando um personagem faz algo memorável, engraçado ou inteligente. Nesses casos, o mestre pode “dar uma inspiração para o personagem”. Caso um ou mais personagens tenham recebido inspiração durante a sessão, descreva neste item o que eles fizeram para receber essa inspiração.
-## Quantos dias se passaram: normalmente ao final de um dia o grupo faz um descanso longo (long rest), enquanto em outras vezes só é mencionado que um novo dia está amanhecendo. Analise quantos dias se passaram nesta sessão, se algum. Se não for possível determinar com clareza, indique apenas que o tempo transcorrido é indeterminado.
-## Onde a sessão parou: onde o grupo estava e o que estava fazendo nos minutos finais da sessão?
+1. NPCs encontrados: descreva brevemente os NPCs encontrados, por exemplo, “Kalyth, guerreira orc, e Tasha, maga poderosa”.
+2. Itens obtidos: o grupo obteve algum item importante na sessão?
+3. Momentos inspiradores: “Inspiração” é um termo usado no jogo para quando um personagem faz algo memorável, engraçado ou inteligente. Nesses casos, o mestre pode “dar uma inspiração para o personagem”. Caso um ou mais personagens tenham recebido inspiração durante a sessão, descreva neste item o que eles fizeram para receber essa inspiração.
+4. Quantos dias se passaram: normalmente ao final de um dia o grupo faz um descanso longo (long rest), enquanto em outras vezes só é mencionado que um novo dia está amanhecendo. Analise quantos dias se passaram nesta sessão, se algum. Se não for possível determinar com clareza, indique apenas que o tempo transcorrido é indeterminado.
+5. Onde a sessão parou: onde o grupo estava e o que estava fazendo nos minutos finais da sessão?
