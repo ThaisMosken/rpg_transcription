@@ -1,38 +1,53 @@
 # Termos de sistema
-"D20",
-"Iniciativa",
-"Perception",
-"Insight",
-"Investigation",
+D20
+Iniciativa
+Insight
+Investigation
+Perception
+
 # Nomes de personagens de jogadores - Zéfiros
-"Pharah",
-"Janos",
-"Bjorn",
-"Bbo",
-"Akros",
+Akros
+Bbo
+Bjorn
+Janos
+Krogmod
+Pharah
+
 # Nomes de personagens de jogadores - Inferno
-"Kay",
-"Sarfan Thuranni",
-"Vander Bremen",
-"Purcival Purcy Bartolomeow",
-"Penélope",
-"Orog",
+Kay
+Orog
+Penélope
+Purcival Purcy Bartolomeow
+Purcy
+Sarfan
+Sarfan Thuranni
+Thuranni
+Vander
+Vander Bremen
+
 # Nomes de outros personagens
-"De Lata",
-"Pedrinha",
-"Alustriel",
-"Mordenkainen",
-"Tasha",
-"Zéfiros",
-"Tiamat",
-"Zariel",
-"Vecna",
+Alustriel
+Auril
+De Lata
+Kalyth
+Mordenkainen
+Pedrinha
+Tasha
+Tiamat
+Vecna
+Velynne
+Zariel
+Zéfiros
+
 # Nomes de locais
-"Eberron",
-"Elturel",
-"Elturgard",
-"Baldur’s Gate",
-"Candlekeep",
-"Icewind Dale",
-"Baróvia",
-"Faerûn"
+Baldur’s Gate
+Baróvia
+Candlekeep
+Eberron
+Elturel
+Elturgard
+Faerûn
+Ialos
+Icewind Dale
+Landro
+Mournland
