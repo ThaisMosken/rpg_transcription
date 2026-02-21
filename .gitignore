@@ -2,6 +2,20 @@
 __pycache__/
 *.py[codz]
 *$py.class
+.venv/
+.vscode/
+.ipynb_checkpoints/
+
+# Áudios (evita arquivos pesados no Git)
+*.mp3
+*.wav
+*.m4a
+
+# Saídas de texto e transcrições
+*.txt
+*.md
+!README.md
+!requirements.txt
 
 # C extensions
 *.so

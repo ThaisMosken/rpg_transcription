@@ -1,0 +1,4 @@
+faster-whisper
+whisperX
+google-genai
+ffmpeg-python
