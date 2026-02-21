@@ -3,16 +3,14 @@ Atue como um Escriba e Cronista Mestre de RPG.
 
 Sua tarefa é ler a transcrição bruta da sessão de RPG fornecida acima e transformá-la em um resumo narrativo coeso.
 
-**DIRETRIZES DE FLUXO E COBERTURA:**
-
+**Diretrizes de fluxo e cobertura:**
 1. **Foco Narrativo:** O texto é uma transcrição de áudio, portanto pode conter erros de fala, repetições, gírias e conversas "off-game" (fora do personagem). Você deve filtrar esse ruído e extrair a essência da história jogada. Ignore mecânicas de dados e conversas off-game. Transforme os acontecimentos em uma crônica épica.
 2. **Varredura Completa:** Você deve processar o texto do início ao fim. Garanta que o último parágrafo do seu resumo corresponda aos eventos finais da história registrados na transcrição.
 3. **Sem Alucinações:** Se a sessão terminou abruptamente, encerre o texto onde a história parou. Não invente ganchos ou conclusões que não aconteceram.
 4. **Destaques:** Use **negrito** para nomes de personagens, lugares, itens importantes e momentos críticos.
 5. **Linguagem**: Use uma linguagem narrativa, clara e empolgante (como o resumo de um capítulo de livro).
 
-Instruções de Formatação:
-
+**Instruções de Formatação:**
 1. O resumo deve ter exatamente entre 2 e 3 parágrafos.
 2. O primeiro parágrafo deve cobrir o primeiro terço da sessão.
 3. O segundo parágrafo deve cobrir o segundo terço da sessão.
@@ -25,11 +23,11 @@ Critérios de Conteúdo (O que incluir):
 3. Ações de Destaque: Mencione o que deu muito certo (sucessos críticos/jogadas inteligentes) e o que deu muito errado (falhas críticas/planos que falharam).
 4. Momentos Memoráveis: Se houver cenas engraçadas ou diálogos icônicos que marcaram a sessão, inclua-os brevemente para dar "sabor" ao resumo.
 
-O que IGNORAR:
+**O que IGNORAR:**
 1. Discussões longas sobre regras ou matemática de dados (apenas o resultado narrativo importa).
 2. Conversas paralelas que não agregam à história ou ao humor da mesa.
 
-Após o resumo da sessão, adicione os seguintes pontos:
+**Após o resumo da sessão, adicione os seguintes pontos:**
 ## NPCs encontrados: descreva brevemente os NPCs encontrados, por exemplo, “Kalyth, guerreira orc, e Tasha, maga poderosa”.
 ## Itens obtidos: o grupo obteve algum item importante na sessão?
 ## Momentos inspiradores: “Inspiração” é um termo usado no jogo para quando um personagem faz algo memorável, engraçado ou inteligente. Nesses casos, o mestre pode “dar uma inspiração para o personagem”. Caso um ou mais personagens tenham recebido inspiração durante a sessão, descreva neste item o que eles fizeram para receber essa inspiração.
