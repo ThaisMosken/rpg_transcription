@@ -16,6 +16,7 @@ __pycache__/
 *.md
 !README.md
 !requirements.txt
+!prompts/*.md
 
 # C extensions
 *.so
