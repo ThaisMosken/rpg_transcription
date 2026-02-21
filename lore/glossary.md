@@ -1,9 +1,19 @@
 # Termos de sistema
+Cantrip
+Constituição
+Constitution
 D20
+Divination
 Iniciativa
 Insight
 Investigation
+Level
+Level up
 Perception
+Range
+Ranger
+Spell
+Spellbook
 
 # Nomes de personagens de jogadores - Zéfiros
 Akros
