@@ -50,6 +50,7 @@
 - Avernus
 - Baldur’s Gate
 - Baróvia
+- Bryn Shander
 - Candlekeep
 - Eberron
 - Elturel
@@ -116,6 +117,7 @@
 - Dretches
 - Ghoul
 - Hag
+- Kobold
 - Owlbear
 - Mezzoloth
 - Redcap
