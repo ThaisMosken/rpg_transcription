@@ -1,125 +1,125 @@
 # Termos de sistema
-Cantrip
-Constituição
-Constitution
-D20
-Divination
-Iniciativa
-Insight
-Investigation
-Level
-Level up
-Perception
-Range
-Ranger
-Spell
-Spellbook
-
-# Nomes de personagens de jogadores - Zéfiros
-Akros
-Bbo
-Bjorn
-Janos
-Krogmod
-Pharah
-
-# Nomes de personagens de jogadores - Inferno
-Kay
-Orog
-Penélope
-Purcival Purcy Bartolomeow
-Purcy
-Sarfan
-Sarfan Thuranni
-Thuranni
-Vander
-Vander Bremen
+- Arcana
+- Arcane Trickster
+- Artífice
+- Cantrip
+- Constituição
+- Constitution
+- D20
+- Deception
+- Divination
+- Fighter
+- Gloomstalker
+- Iniciativa
+- Insight
+- Investigation
+- Level
+- Level up
+- Perception
+- Persuasion
+- Range
+- Ranger
+- Rogue
+- Sleight of Hand
+- Sorcerer
+- Spell
+- Spellbook
+- Stealth
+- Warlock
+- Wizard
 
 # Nomes de outros personagens
-Alustriel
-De Lata
-Gideon
-Kalyth
-Mordenkainen
-Ontharr Frume
-Pedrinha
-Schnee
-Tasha
-Velynne
+- Alustriel
+- Mordenkainen
+- Ontharr Frume
+- Tasha
 
 # Nomes de entidades de grande poder (deuses, diabos, etc)
-Auril
-Helm
-Tiamat
-Torm
-Vecna
-Zariel
+- Auril
+- Bane
+- Bhaal
+- Helm
+- Myrkul
+- Tiamat
+- Torm
+- Vecna
+- Zariel
 
 # Nomes de locais
-Abyss
-Avernus
-Baldur’s Gate
-Baróvia
-Candlekeep
-Eberron
-Elturel
-Elturgard
-Faerûn
-Ialos
-Icewind Dale
-Landro
-Mournland
-Neverwinter
-Termalaine
-Waterdeep
+- Abyss
+- Avernus
+- Baldur’s Gate
+- Baróvia
+- Candlekeep
+- Eberron
+- Elturel
+- Elturgard
+- Faerûn
+- Icewind Dale
+- Luskan
+- Mournland
+- Netheril
+- Neverwinter
+- Termalaine
+- Waterdeep
 
 # Nomes de magias frequentes
-Alarm
-Arcane Gate
-Catapult
-Catapulta
-Cone of Cold
-Dimension Door
-Fireball
-Misty Step
-Prestidigitação
-Prestidigitation
-Starry Wisp
+- Alarm
+- Arcane Gate
+- Catapult
+- Catapulta
+- Cone of Cold
+- Dimension Door
+- Fireball
+- Misty Step
+- Prestidigitação
+- Prestidigitation
+- Starry Wisp
 
 # Nomes de habilidades frequentes
-Action Surge
-Brutal Strike
-Feat
-Feats
-Indomitable
-Rage
-Second Wind
-Starlight Step
-Temporal Stasis
+- Action Surge
+- Brutal Strike
+- Feat
+- Feats
+- Indomitable
+- Rage
+- Second Wind
+- Starlight Step
+- Temporal Stasis
 
 # Nomes de itens
-Cajado das Sete Partes
-Escudo do Senhor Oculto
-Professor Skant
-Rod of Seven Parts
-Shield of the Hidden Lord
+- Cajado das Sete Partes
+- Escudo do Senhor Oculto
+- Longbow
+- Longsword
+- Mythallar
+- Professor Skant
+- Rod of Seven Parts
+- Shield of the Hidden Lord
+- Shortbow
+- Shortsword
+- Thieves' tools
 
 # Nomes de associações
-Aliança dos Lordes
-Enclave Esmeralda
-Flaming Fists
-Harpers
-Hellriders
-Ordem da Manopla
-Zéfiros
-Zhentarim
+- Aliança dos Lordes
+- Enclave Esmeralda
+- Flaming Fists
+- Harpers
+- Hellriders
+- Ordem da Manopla
+- Zéfiros
+- Zhentarim
 
 # Nomes de tipos de criaturas
-Dretch
-Dretches
-Ghoul
-Hag
-Mezzoloth
-Witch
-Wight
-Wraith
+- Abishai
+- Dretch
+- Dretches
+- Ghoul
+- Hag
+- Owlbear
+- Mezzoloth
+- Redcap
+- Witch
+- Wight
+- Wraith
+- Urso-coruja
