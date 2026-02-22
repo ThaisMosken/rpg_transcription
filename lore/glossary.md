@@ -37,18 +37,23 @@ Vander Bremen
 
 # Nomes de outros personagens
 Alustriel
-Auril
 De Lata
+Gideon
 Kalyth
 Mordenkainen
+Ontharr Frume
 Pedrinha
 Schnee
 Tasha
-Tiamat
-Vecna
 Velynne
+
+# Nomes de entidades de grande poder (deuses, diabos, etc)
+Auril
+Helm
+Tiamat
+Torm
+Vecna
 Zariel
-Zéfiros
 
 # Nomes de locais
 Abyss
@@ -98,3 +103,23 @@ Escudo do Senhor Oculto
 Professor Skant
 Rod of Seven Parts
 Shield of the Hidden Lord
+
+# Nomes de associações
+Aliança dos Lordes
+Enclave Esmeralda
+Flaming Fists
+Harpers
+Hellriders
+Ordem da Manopla
+Zéfiros
+Zhentarim
+
+# Nomes de tipos de criaturas
+Dretch
+Dretches
+Ghoul
+Hag
+Mezzoloth
+Witch
+Wight
+Wraith
