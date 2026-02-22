@@ -2,7 +2,7 @@ import requests
 from google import genai
 from google.genai.errors import APIError
 
-def gerar_cronica_gemini(api_key, caminho_transcricao, caminho_saida, glossario_contexto):
+def gerar_cronica_gemini(api_key, caminho_transcricao, caminho_saida, glossario_contexto, modelo):
     """Lê a transcrição, baixa o prompt do GitHub, chama o Gemini e salva o resultado."""
     
     # 1. Baixar o prompt do GitHub
@@ -53,7 +53,7 @@ def gerar_cronica_gemini(api_key, caminho_transcricao, caminho_saida, glossario_
     try:
         print("\nEnviando solicitação ao modelo Gemini (Isso pode levar alguns segundos)...")
         response = client.models.generate_content(
-            model='gemini-2.0-flash', # Note: Ajustado para o nome oficial atual se necessário
+            model=modelo,
             contents=prompt_completo,
             config=generation_config
         )
