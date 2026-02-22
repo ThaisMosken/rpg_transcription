@@ -8,6 +8,8 @@ Este projeto automatiza a transcrição de sessões de RPG utilizando **WhisperX
 
 Antes de subir o áudio para o Google Drive, é necessário garantir que ele esteja no formato ideal para o processador de áudio.
 
+### Para Arquivo Único
+
 ### 1. Navegar até a pasta de áudios
 Abra o seu terminal (Git Bash recomendado) e utilize o comando abaixo para acessar sua pasta de músicas:
 
@@ -21,6 +23,14 @@ O Whisper processa melhor arquivos .wav mono de 16kHz. Utilize o comando abaixo 
 ```bash
 # Substitua 'ID56' pelo código da sua sessão
 ffmpeg -i ID56.mp3 -ac 1 -ar 16000 -c:a pcm_s16le ID56w.wav
+```
+
+### Múltiplos Arquivos
+No Git Bash:
+```bash
+# Substitua o caminho da pasta onde estão os arquivos de áudio conforme necessidade
+cd "/c/Users/thais/Music/Mesas de RPG/To Transcript"
+for f in *.mp3; do ffmpeg -i "$f" -ac 1 -ar 16000 -c:a pcm_s16le "${f%.mp3}w.wav"; done
 ```
 
 ## Execução no Google Colab
