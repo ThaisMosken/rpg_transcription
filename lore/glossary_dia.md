@@ -22,12 +22,16 @@
 - Feonor
 - Fisk
 - Gideon
+- Jorge
 - Kreeg
 - Lulu
 - Maggie
 - Mad Maggie
+- Marquinhos
 - Mortlock
 - Mortlock Vanthampur
+- Nicolai
+- Nicolai Smith
 - Pherria
 - Pherria Jynks
 - Princeps Kovik
@@ -39,6 +43,7 @@
 - Thalamra
 - Thalamra Vanthampur
 - Thavius Kreeg
+- Theodoro
 - Thurstwell
 - Thurstwell Vanthampur
 - Ulder Ravengard
