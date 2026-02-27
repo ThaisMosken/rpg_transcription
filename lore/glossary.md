@@ -42,6 +42,7 @@
 - Myrkul
 - Tiamat
 - Torm
+- Umberlee
 - Vecna
 - Zariel
 
@@ -50,17 +51,25 @@
 - Avernus
 - Baldur’s Gate
 - Baróvia
+- Bremen
 - Bryn Shander
+- Caer-Dineval
+- Caer-Konig
 - Candlekeep
+- Dougan's Hole
+- Easthaven
 - Eberron
 - Elturel
 - Elturgard
 - Faerûn
+- Good Mead
 - Icewind Dale
+- Lonelywood
 - Luskan
 - Mournland
 - Netheril
 - Neverwinter
+- Targos
 - Termalaine
 - Waterdeep
 

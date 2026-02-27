@@ -7,15 +7,24 @@
 - Pharah
 
 # Nomes de outros personagens
+- Angajuk
 - Beldora
+- Bob
 - De Lata
+- Duvessa
 - Kalyth
+- Obb
 - Pedrinha
+- Pharus
 - Schnee
+- Sigrid
+- Trovus
+- Ulkora
 - Velynne
 - ZigZag
 
 # Nomes de locais
+- Angajuk's Bell
 - Ialos
 - Landro
 - Ythryn
