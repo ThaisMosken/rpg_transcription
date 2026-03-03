@@ -1,6 +1,6 @@
 from faster_whisper import WhisperModel
 
-def executar_transcricao(arquivo_entrada, arquivo_saida, glossario_nomes, dispositivo="cuda", precisao_modelo="float16", nome_modelo="distil-large-v3"):
+def executar_transcricao(arquivo_entrada, arquivo_saida, glossario_nomes, dispositivo="cuda", precisao_modelo="float16", nome_modelo="large-v2"):
     """
     Realiza a transcrição de um áudio utilizando Faster-Whisper.
     """
