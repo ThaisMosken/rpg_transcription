@@ -1,17 +1,16 @@
 from faster_whisper import WhisperModel
 
-def executar_transcricao(arquivo_entrada, arquivo_saida, glossario_nomes, dispositivo="cuda", precisao_modelo="float16"):
+def executar_transcricao(arquivo_entrada, arquivo_saida, glossario_nomes, dispositivo="cuda", precisao_modelo="float16", nome_modelo="distil-large-v3"):
     """
     Realiza a transcrição de um áudio utilizando Faster-Whisper.
     """
     
-    print(f"Iniciando a transcrição com Faster-Whisper usando {dispositivo}.")
+    print(f"📦 Carregando modelo: {nome_modelo} em {dispositivo} ({precisao_modelo}).")
 
     # Configuração do modelo baseada no dispositivo
-    if dispositivo == "cuda":
-        model = WhisperModel("large-v2", device="cuda", compute_type=precisao_modelo)
-    else:
-        model = WhisperModel("large-v2", device="cpu", compute_type="int8")
+    comp_type = precisao_modelo if dispositivo == "cuda" else "int8"
+    
+    model = WhisperModel(nome_modelo, device=dispositivo, compute_type=precisao_modelo)
 
     # Preparação do prompt
     prompt_string = ", ".join(glossario_nomes)
