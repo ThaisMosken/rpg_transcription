@@ -22,7 +22,7 @@ O Whisper processa melhor arquivos .wav mono de 16kHz. Utilize o comando abaixo 
 
 ```bash
 # Substitua 'ID56' pelo código da sua sessão
-ffmpeg -i ID56.mp3 -ac 1 -ar 16000 -c:a pcm_s16le ID56w.wav
+ffmpeg -i ID56.mp3 -ac 1 -ar 16000 -c:a pcm_s16le ID56_otimizado.mp3
 ```
 
 ### Múltiplos Arquivos
@@ -30,7 +30,7 @@ No Git Bash:
 ```bash
 # Substitua o caminho da pasta onde estão os arquivos de áudio conforme necessidade
 cd "/c/Users/thais/Music/Mesas de RPG/To Transcript"
-for f in *.mp3; do ffmpeg -i "$f" -ac 1 -ar 16000 -c:a pcm_s16le "${f%.mp3}w.wav"; done
+for f in *.mp3; do ffmpeg -i "$f" -ac 1 -ar 16000 -c:a pcm_s16le "${f%.mp3}_otimizado.mp3"; done
 ```
 
 ## Execução no Google Colab
