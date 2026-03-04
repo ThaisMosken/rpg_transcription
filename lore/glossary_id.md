@@ -21,6 +21,7 @@
 - Trovus
 - Ulkora
 - Velynne
+- Xardorok
 - ZigZag
 
 # Nomes de locais
