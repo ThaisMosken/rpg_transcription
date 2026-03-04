@@ -129,8 +129,12 @@
 - Kobold
 - Owlbear
 - Mezzoloth
+- Mímico
 - Redcap
 - Witch
 - Wight
 - Wraith
 - Urso-coruja
+
+# Nomes de materiais
+- Chardalyn
