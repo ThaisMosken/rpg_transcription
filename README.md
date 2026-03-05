@@ -14,6 +14,7 @@ Antes de subir o áudio para o Google Drive, é necessário garantir que ele est
 Abra o seu terminal (Git Bash recomendado) e utilize o comando abaixo para acessar sua pasta de músicas:
 
 ```bash
+# Substitua o caminho da pasta onde estão os arquivos de áudio conforme necessidade
 cd "C:\Users\thais\Music\Mesas de RPG\"
 ```
 
@@ -22,16 +23,29 @@ O Whisper processa melhor arquivos .wav mono de 16kHz. Utilize o comando abaixo 
 
 ```bash
 # Substitua 'ID56' pelo código da sua sessão
-ffmpeg -i ID56.mp3 -ac 1 -ar 16000 -c:a pcm_s16le ID56_otimizado.mp3
+ffmpeg -i ID56.mp3 -ac 1 -ar 16000 -c:a pcm_s16le ID56w.wav
 ```
 
 ### Múltiplos Arquivos
-No Git Bash:
+Para converter todos os arquivos MP3 da pasta, utilize o seguinte comando:
+
 ```bash
 # Substitua o caminho da pasta onde estão os arquivos de áudio conforme necessidade
 cd "/c/Users/thais/Music/Mesas de RPG/To Transcript"
-for f in *.mp3; do ffmpeg -i "$f" -ac 1 -ar 16000 -c:a pcm_s16le "${f%.mp3}_otimizado.mp3"; done
+for f in *.mp3; do ffmpeg -i "$f" -ac 1 -ar 16000 -c:a pcm_s16le "${f%.mp3}w.wav"; done
 ```
+
+### Arquivos Grandes
+Algumas vezes o Colab falha no plano gratuito ao tentar processar arquivos muito grandes (maiores do que 3 horas).
+Para cortar os arquivos em partes de 3 horas, utilize o seguinte comando:
+
+```bash
+# Substitua o caminho da pasta onde estão os arquivos de áudio conforme necessidade
+cd "/c/Users/thais/Music/Mesas de RPG/To Transcript"
+for f in *.mp3; do ffmpeg -i "$f" -ac 1 -ar 16000 -c:a pcm_s16le "${f%.mp3}w.wav"; done
+```
+
+Note que com arquivos divididos em partes será necessário ajustar a montagem da variável ARQUIVO_ENTRADA de acordo no Bloco 3.
 
 ## Execução no Google Colab
 Para rodar os notebooks, siga estas configurações críticas para garantir o uso da GPU e evitar erros de memória.
