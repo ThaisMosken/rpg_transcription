@@ -24,6 +24,16 @@ def executar_transcricao(arquivo_entrada, arquivo_saida, glossario_nomes, dispos
         initial_prompt=prompt_string 
     )
 
+    # Duração do arquivo
+    duration_total = info.duration
+    duration_min = int(duration_total // 60)
+    duration_sec = int(duration_total % 60)
+    print(f"🎙️ Duração do áudio: {duration_min}min {duration_sec}s")
+
+    if duracao_minutos > 190:
+        print(f"⚠️ Atenção: o áudio tem mais de 190 minutos. Pode ser necessário dividi-lo em múltiplas partes para evitar erros na transcrição.")
+
+
     # Processar e salvar o texto
     with open(arquivo_saida, "w", encoding="utf-8") as f:
         print(f"Salvando o texto em: {arquivo_saida}")
