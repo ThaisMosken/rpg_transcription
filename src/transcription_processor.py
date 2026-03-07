@@ -1,3 +1,4 @@
+import soundfile as sf
 from faster_whisper import WhisperModel
 
 def executar_transcricao(arquivo_entrada, arquivo_saida, glossario_nomes, dispositivo="cuda", precisao_modelo="float16", nome_modelo="large-v2"):
@@ -6,6 +7,15 @@ def executar_transcricao(arquivo_entrada, arquivo_saida, glossario_nomes, dispos
     """
     
     print(f"📦 Carregando modelo: {nome_modelo} em {dispositivo} ({precisao_modelo}).")
+
+    # Duração do arquivo
+    info_audio = sf.info(arquivo_entrada)
+    duration_min = int(info_audio.duration // 60)
+    duration_sec = int(info_audio.duration % 60)
+    print(f"🎙️ Duração do áudio: {duration_min}min {duration_sec}s")
+
+    if duration_min > 190:
+        print(f"⚠️ Atenção: o áudio tem mais de 190 minutos. Pode ser necessário dividi-lo em múltiplas partes para evitar erros na transcrição")
 
     # Configuração do modelo baseada no dispositivo
     comp_type = precisao_modelo if dispositivo == "cuda" else "int8"
@@ -23,16 +33,6 @@ def executar_transcricao(arquivo_entrada, arquivo_saida, glossario_nomes, dispos
         word_timestamps=False, 
         initial_prompt=prompt_string 
     )
-
-    # Duração do arquivo
-    duration_total = info.duration
-    duration_min = int(duration_total // 60)
-    duration_sec = int(duration_total % 60)
-    print(f"🎙️ Duração do áudio: {duration_min}min {duration_sec}s")
-
-    if duracao_minutos > 190:
-        print(f"⚠️ Atenção: o áudio tem mais de 190 minutos. Pode ser necessário dividi-lo em múltiplas partes para evitar erros na transcrição.")
-
 
     # Processar e salvar o texto
     with open(arquivo_saida, "w", encoding="utf-8") as f:
