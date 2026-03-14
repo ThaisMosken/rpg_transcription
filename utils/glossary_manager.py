@@ -8,7 +8,7 @@ class GlossaryManager:
     
     MESA_CONFIG = {
         "id": "glossary_id.md", #ID: Icewind Dale, mesa dos Zéfiros
-        "dia": "glossary_dia.md"  #DiA: Descent into Avernos, mesa do Inferno
+        "dia": "glossary_dia.md",  #DiA: Descent into Avernos, mesa do Inferno
         "ooa": "glossary_ooa.md"  #OoA: Out of the Abyss
     }
 
