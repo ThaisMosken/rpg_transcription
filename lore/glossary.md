@@ -127,10 +127,14 @@
 - Ghoul
 - Hag
 - Kobold
+- Ooze
 - Owlbear
+- Plasmoid
 - Mezzoloth
 - Mímico
 - Redcap
+- Slime
+- Thri-kreen
 - Witch
 - Wight
 - Wraith
