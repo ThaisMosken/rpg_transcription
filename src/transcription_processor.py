@@ -30,7 +30,7 @@ def executar_transcricao(arquivo_entrada, arquivo_saida, glossario_nomes, hf_tok
 
     # --- ETAPA 1: TRANSCRIÇÃO ---
     print("1. Iniciando transcrição (Faster-Whisper via WhisperX)...")
-    model = whisperx.load_model(nome_modelo, dispositivo, comp_type)
+    model = whisperx.load_model(nome_modelo, dispositivo, compute_type=comp_type)
     
     # Transcreve passando o idioma e o glossário como prompt inicial
     result = model.transcribe(
