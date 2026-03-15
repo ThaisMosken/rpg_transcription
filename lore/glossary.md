@@ -123,8 +123,10 @@
 
 # Nomes de tipos de criaturas
 - Abishai
+- Behir
 - Dretch
 - Dretches
+- Efreeti
 - Ghoul
 - Hag
 - Kobold
