@@ -6,7 +6,7 @@ def gerar_cronica_gemini(api_key, caminho_transcricao, caminho_saida, glossario_
     """Lê a transcrição, baixa o prompt do GitHub, chama o Gemini e salva o resultado."""
     
     # 1. Baixar o prompt do GitHub
-    url_prompt = f"https://raw.githubusercontent.com/ThaisMosken/rpg_transcription/refs/heads/main/prompts/"{template}".md"
+    url_prompt = f"https://raw.githubusercontent.com/ThaisMosken/rpg_transcription/refs/heads/main/prompts/{template}.md"
     try:
         response = requests.get(url_prompt)
         response.raise_for_status()
