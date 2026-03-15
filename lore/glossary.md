@@ -71,6 +71,7 @@
 - Neverwinter
 - Targos
 - Termalaine
+- Thay
 - Waterdeep
 
 # Nomes de magias frequentes
