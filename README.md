@@ -8,41 +8,49 @@ Este projeto automatiza a transcrição de sessões de RPG utilizando **WhisperX
 
 Antes de subir o áudio para o Google Drive, é necessário garantir que ele esteja no formato ideal para o processador de áudio.
 
-### Para Arquivo Único
-
-### 1. Navegar até a pasta de áudios
-Abra o seu terminal (Git Bash recomendado) e utilize o comando abaixo para acessar sua pasta de músicas:
-
-```bash
-# Substitua o caminho da pasta onde estão os arquivos de áudio conforme necessidade
-cd "C:\Users\thais\Music\Mesas de RPG\"
-```
-
-### 2. Conversão para WAV (FFmpeg)
+### Conversão para WAV (FFmpeg) para Arquivo Único
 O Whisper processa melhor arquivos .wav mono de 16kHz. Utilize o comando abaixo para converter seu arquivo original:
 
+**No Git Bash:**
 ```bash
-# Substitua 'ID56' pelo código da sua sessão
-ffmpeg -i ID56.mp3 -ac 1 -ar 16000 -c:a pcm_s16le ID56w.wav
+cd "<CAMINHO_DA_PASTA_DO_ARQUIVO>"
+NOME="ID56"; ffmpeg -i "$NOME.mp3" -ac 1 -ar 16000 -c:a pcm_s16le "${NOME}w.wav"
 ```
 
-### Múltiplos Arquivos
+**No Powershell:**
+```PowerShell
+cd "<CAMINHO_DA_PASTA_DO_ARQUIVO>"
+$nome = "<NOME_DO_ARQUIVO>"; ffmpeg -i "$nome.mp3" -ac 1 -ar 16000 -c:a pcm_s16le "$($nome)w.wav"
+```
+
+### Conversão para WAV (FFmpeg) para Múltiplos Arquivos
 Para converter todos os arquivos MP3 da pasta, utilize o seguinte comando:
 
+**No Git Bash:**
 ```bash
-# Substitua o caminho da pasta onde estão os arquivos de áudio conforme necessidade
-cd "/c/Users/thais/Music/Mesas de RPG/To Transcript"
+cd "<CAMINHO_DA_PASTA_DOS_ARQUIVOS>"
 for f in *.mp3; do ffmpeg -i "$f" -ac 1 -ar 16000 -c:a pcm_s16le "${f%.mp3}w.wav"; done
 ```
 
-### Arquivos Grandes
-Algumas vezes o Colab falha no plano gratuito ao tentar processar arquivos muito grandes (maiores do que 3 horas).
-Para cortar os arquivos em partes de 3 horas, utilize o seguinte comando:
+**No Powershell:**
+```PowerShell
+cd "<CAMINHO_DA_PASTA_DOS_ARQUIVOS>"
+Get-ChildItem *.mp3 | ForEach-Object { ffmpeg -i $_.Name -ac 1 -ar 16000 -c:a pcm_s16le "$($_.BaseName)w.wav" }
+```
 
+### Conversão para WAV (FFmpeg) para Arquivos Grandes
+Algumas vezes o Colab falha no plano gratuito (GPU T4) ao tentar processar arquivos muito grandes (maiores do que 3 horas). Para cortar os arquivos em partes de 150 minutos, utilize o seguinte comando:
+
+**No Git Bash:**
 ```bash
-# Substitua o caminho da pasta onde estão os arquivos de áudio conforme necessidade
-cd "/c/Users/thais/Music/Mesas de RPG/To Transcript"
-for f in *.mp3; do ffmpeg -i "$f" -ac 1 -ar 16000 -c:a pcm_s16le "${f%.mp3}w.wav"; done
+cd "<CAMINHO_DA_PASTA_DOS_ARQUIVOS>"
+NOME="ID54"; ffmpeg -i "$NOME.mp3" -f segment -segment_time 02:30:00 -ac 1 -ar 16000 -c:a pcm_s16le "${NOME}_parte_%03d.wav"
+```
+
+**No Powershell:**
+```PowerShell
+cd "<CAMINHO_DA_PASTA_DO_ARQUIVO>"
+$nome = "<NOME_DO_ARQUIVO>"; ffmpeg -i "$nome.mp3" -f segment -segment_time 02:30:00 -ac 1 -ar 16000 -c:a pcm_s16le "$($nome)_parte_%03d.wav"
 ```
 
 Note que com arquivos divididos em partes será necessário ajustar a montagem da variável ARQUIVO_ENTRADA de acordo no Bloco 3.
