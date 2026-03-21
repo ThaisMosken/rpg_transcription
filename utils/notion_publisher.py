@@ -4,7 +4,7 @@ from notion_client import Client
 class NotionPublisher:
     def __init__(self, token, databases_config):
         self.notion = Client(auth=token)
-        self.config = databases_config
+        self.databases_config = databases_config 
         self.termos_genericos = ["aldeões", "habitantes", "guardas", "multidão", "plebeus", "cultistas", "crianças"]
 
     def _limpar_nome(self, texto):
@@ -32,7 +32,6 @@ class NotionPublisher:
         if not nome or len(nome) > 60 or "nenhum" in nome_low: return None
         if any(termo in nome_low for termo in self.termos_genericos): return None
 
-        # Busca usando o client oficial
         query = self.notion.databases.query(
             database_id=database_id,
             filter={"property": "Nome", "title": {"equals": nome}}
@@ -74,12 +73,14 @@ class NotionPublisher:
                 "type": tipo,
                 tipo: {"rich_text": self._processar_rich_text(conteudo), "color": cor}
             })
-        return blocos[:100] # Limite da API do Notion por chamada
+        return blocos[:100]
 
     def publicar_sessao(self, mesa_id, num_sessao, data, arquivo_path):
+        # 1. Verifica se a mesa existe na config
         if mesa_id not in self.databases_config:
             raise ValueError(f"Mesa '{mesa_id}' não encontrada no arquivo de configuração.")
             
+        # 2. Pega as configurações específicas daquela mesa
         conf = self.databases_config[mesa_id]
 
         with open(arquivo_path, "r", encoding="utf-8") as f:
@@ -88,17 +89,17 @@ class NotionPublisher:
         titulo_epico = linhas[0].strip().replace("#", "").strip()
         inteiro_texto = "".join(linhas)
 
-        # Extração de NPCs e Itens
         def extrair(marcador):
             match = re.search(f"{marcador}:?(.*?)(?:\n\n|\n#|\n[A-Z]|$)", inteiro_texto, re.DOTALL | re.IGNORECASE)
             return [l.strip() for l in match.group(1).split('\n') if l.strip()] if match else []
 
-        ids_npcs = [self.encontrar_ou_criar_entrada(self.config['DB_NPCS'], n) for n in extrair("NPCs encontrados")]
-        ids_itens = [self.encontrar_ou_criar_entrada(self.config['DB_ITENS'], i) for i in extrair("Itens obtidos")]
+        # 3. Busca NPCs e Itens usando os IDs específicos da MESA (conf)
+        ids_npcs = [self.encontrar_ou_criar_entrada(conf['DB_NPCS'], n) for n in extrair("NPCs encontrados")]
+        ids_itens = [self.encontrar_ou_criar_entrada(conf['DB_ITENS'], i) for i in extrair("Itens obtidos")]
 
-        # Criar a página da Sessão
+        # 4. Criar a página da Sessão no DB_SESSAO daquela mesa
         res = self.notion.pages.create(
-            parent={"database_id": self.config['MAPPING'][mesa_id]},
+            parent={"database_id": conf['DB_SESSAO']},
             properties={
                 "Nome": {"title": [{"text": {"content": f"Sessão {num_sessao}"}}]},
                 "Título": {"rich_text": [{"text": {"content": titulo_epico}}]},
