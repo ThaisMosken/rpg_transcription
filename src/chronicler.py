@@ -2,15 +2,15 @@ import requests
 from google import genai
 from google.genai.errors import APIError
 
-def gerar_cronica_gemini(api_key, caminho_transcricao, caminho_saida, glossario_contexto, modelo, template):
+def generate_gemini_chronicle(api_key, transcription_path, output_path, context_glossary, model, template):
     """Lê a transcrição, baixa o prompt do GitHub, chama o Gemini e salva o resultado."""
     
     # 1. Baixar o prompt do GitHub
-    url_prompt = f"https://raw.githubusercontent.com/ThaisMosken/rpg_transcription/refs/heads/main/prompts/{template}.md"
+    prompt_url = f"https://raw.githubusercontent.com/ThaisMosken/rpg_transcription/refs/heads/main/prompts/{template}.md"
     try:
-        response = requests.get(url_prompt)
+        response = requests.get(prompt_url)
         response.raise_for_status()
-        prompt_base = response.text
+        base_prompt = response.text
         print("✅ Prompt base baixado do GitHub com sucesso!")
     except Exception as e:
         print(f"❌ Erro ao baixar o prompt: {e}")
@@ -25,22 +25,22 @@ def gerar_cronica_gemini(api_key, caminho_transcricao, caminho_saida, glossario_
 
     # 3. Ler a transcrição
     try:
-        with open(caminho_transcricao, 'r', encoding='utf-8') as f:
-            transcricao_texto = f.read()
+        with open(transcription_path, 'r', encoding='utf-8') as f:
+            transcription_text = f.read()
     except FileNotFoundError:
-        print(f"ERRO: Arquivo não encontrado em {caminho_transcricao}")
+        print(f"ERRO: Arquivo não encontrado em {transcription_path}")
         return
 
     # 4. Montar o Prompt
-    prompt_completo = f"""
+    full_prompt = f"""
     **BLOCO DE TEXTO TRANSCRITO:**
     --- INÍCIO DA TRANSCRIÇÃO ---
-    {transcricao_texto}
+    {transcription_text}
     --- FIM DA TRANSCRIÇÃO ---
 
-    **IMPORTANTE:** Use o glossário a seguir para corrigir nomes: {glossario_contexto}
+    **IMPORTANTE:** Use o glossário a seguir para corrigir nomes: {context_glossary}
 
-    {prompt_base}
+    {base_prompt}
     """
 
     # 5. Configuração e Chamada
@@ -53,22 +53,22 @@ def gerar_cronica_gemini(api_key, caminho_transcricao, caminho_saida, glossario_
     try:
         print("\nEnviando solicitação ao modelo Gemini (Isso pode levar alguns segundos)...")
         response = client.models.generate_content(
-            model=modelo,
-            contents=prompt_completo,
+            model=model,
+            contents=full_prompt,
             config=generation_config
         )
         
-        cronica_final = response.text
+        final_chronicle = response.text
         
-        if not cronica_final:
+        if not final_chronicle:
             print("⚠️ O modelo não gerou resposta (possível bloqueio de segurança).")
             return
 
         # 6. Salvar Resultado
-        with open(caminho_saida, 'w', encoding='utf-8') as f:
-            f.write(cronica_final)
+        with open(output_path, 'w', encoding='utf-8') as f:
+            f.write(final_chronicle)
             
-        print(f"✅ SUCESSO! Crônica salva em: {caminho_saida}")
+        print(f"✅ SUCESSO! Crônica salva em: {output_path}")
         
     except APIError as e:
         print(f"ERRO DE API: {e}")

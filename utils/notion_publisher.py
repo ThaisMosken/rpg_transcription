@@ -7,7 +7,7 @@ class NotionPublisher:
         self.token = token
         self.notion = Client(auth=token)
         self.databases_config = databases_config
-        self.termos_genericos = ["aldeões", "habitantes", "guardas", "multidão", "plebeus", "cultistas", "crianças"]
+        self.generic_terms = ["aldeões", "habitantes", "guardas", "multidão", "plebeus", "cultistas", "crianças"]
         
         # Headers necessários para as chamadas via requests
         self.headers = {
@@ -16,13 +16,13 @@ class NotionPublisher:
             "Notion-Version": "2022-06-28"
         }
 
-    def _limpar_nome(self, texto):
-        limpo = texto.replace("**", "")
-        limpo = re.split(r'[:\(]', limpo)[0]
-        return limpo.strip("- *")
+    def _clean_name(self, text):
+        cleaned_text = text.replace("**", "")
+        cleaned_text = re.split(r'[:\(]', cleaned_text)[0]
+        return cleaned_text.strip("- *")
 
-    def _processar_rich_text(self, texto):
-        parts = re.split(r'(\*\*[^*]+\*\*)', texto)
+    def _process_rich_text(self, text):
+        parts = re.split(r'(\*\*[^*]+\*\*)', text)
         rich_text_list = []
         for part in parts:
             if part.startswith("**") and part.endswith("**"):
@@ -35,17 +35,17 @@ class NotionPublisher:
                 rich_text_list.append({"type": "text", "text": {"content": part}})
         return rich_text_list
 
-    def encontrar_ou_criar_entrada(self, database_id, nome_bruto):
-        nome = self._limpar_nome(nome_bruto)
-        nome_low = nome.lower()
-        if not nome or len(nome) > 60 or "nenhum" in nome_low: return None
-        if any(termo in nome_low for termo in self.termos_genericos): return None
+    def find_or_create_entry(self, database_id, raw_name):
+        name = self._clean_name(raw_name)
+        name_lower = name.lower()
+        if not name or len(name) > 60 or "nenhum" in name_lower: return None
+        if any(termo in name_lower for termo in self.generic_terms): return None
 
-        url_query = f"https://api.notion.com/v1/databases/{database_id}/query"
-        payload = {"filter": {"property": "Nome", "title": {"equals": nome}}}
+        query_url = f"https://api.notion.com/v1/databases/{database_id}/query"
+        payload = {"filter": {"property": "Nome", "title": {"equals": name}}}
         
         try:
-            response = requests.post(url_query, headers=self.headers, json=payload)
+            response = requests.post(query_url, headers=self.headers, json=payload)
             results = response.json().get("results", [])
             if results: 
                 return results[0]["id"]
@@ -53,16 +53,16 @@ class NotionPublisher:
             # Criação da página
             new_page = self.notion.pages.create(
                 parent={"database_id": database_id},
-                properties={"Nome": {"title": [{"text": {"content": nome}}]}}
+                properties={"Nome": {"title": [{"text": {"content": name}}]}}
             )
             return new_page["id"]
         except Exception as e:
-            print(f"⚠️ Erro ao processar '{nome}': {e}")
+            print(f"⚠️ Erro ao processar '{name}': {e}")
             return None
 
-    def parse_markdown_to_blocks(self, linhas_texto):
-        blocos = []
-        mapa_estilos = {
+    def parse_markdown_to_blocks(self, text_lines):
+        blocks = []
+        style_map = {
             "### ": ("heading_3", "blue_background", 4),
             "## ":  ("heading_2", "blue", 3),
             "# ":   ("heading_1", "default", 2),
@@ -71,56 +71,56 @@ class NotionPublisher:
             "- ":   ("bulleted_list_item", "default", 2)
         }
 
-        for linha in linhas_texto:
-            linha = linha.strip()
-            if not linha: continue
+        for line in text_lines:
+            line = line.strip()
+            if not line: continue
 
-            tipo, cor, offset = "paragraph", "default", 0
-            for prefix, (t, c, o) in mapa_estilos.items():
-                if linha.startswith(prefix):
-                    tipo, cor, offset = t, c, o
+            block_type, color, offset = "paragraph", "default", 0
+            for prefix, (t, c, o) in style_map.items():
+                if line.startswith(prefix):
+                    block_type, color, offset = t, c, o
                     break
             
-            conteudo = linha[offset:].strip()
-            blocos.append({
+            content = line[offset:].strip()
+            blocks.append({
                 "object": "block",
-                "type": tipo,
-                tipo: {"rich_text": self._processar_rich_text(conteudo), "color": cor}
+                "type": block_type,
+                block_type: {"rich_text": self._process_rich_text(content), "color": color}
             })
-        return blocos[:100]
+        return blocks[:100]
 
-    def publicar_sessao(self, mesa_id, num_sessao, data, arquivo_path):
-        if mesa_id not in self.databases_config:
-            raise ValueError(f"Mesa '{mesa_id}' não encontrada na configuração.")
+    def publish_session(self, table_id, session_number, date, file_path):
+        if table_id not in self.databases_config:
+            raise ValueError(f"Mesa '{table_id}' não encontrada na configuração.")
             
-        conf = self.databases_config[mesa_id]
+        config = self.databases_config[table_id]
 
-        with open(arquivo_path, "r", encoding="utf-8") as f:
-            linhas = f.readlines()
+        with open(file_path, "r", encoding="utf-8") as f:
+            lines = f.readlines()
 
-        titulo_epico = linhas[0].strip().replace("#", "").strip()
-        inteiro_texto = "".join(linhas)
+        epic_title = lines[0].strip().replace("#", "").strip()
+        full_text = "".join(lines)
 
-        def extrair(marcador):
-            match = re.search(f"{marcador}:?(.*?)(?:\n\n|\n#|\n[A-Z]|$)", inteiro_texto, re.DOTALL | re.IGNORECASE)
-            return [l.strip() for l in match.group(1).split('\n') if l.strip()] if match else []
+        def extrair(marker):
+            match = re.search(f"{marker}:?(.*?)(?:\n\n|\n#|\n[A-Z]|$)", full_text, re.DOTALL | re.IGNORECASE)
+            return [line_item.strip() for line_item in match.group(1).split('\n') if line_item.strip()] if match else []
 
         # NPCs e Itens específicos da mesa
-        ids_npcs = [self.encontrar_ou_criar_entrada(conf['DB_NPCS'], n) for n in extrair("NPCs encontrados")]
-        ids_itens = [self.encontrar_ou_criar_entrada(conf['DB_ITENS'], i) for i in extrair("Itens obtidos")]
+        npc_ids = [self.find_or_create_entry(config['DB_NPCS'], npc_name) for npc_name in extrair("NPCs encontrados")]
+        item_ids = [self.find_or_create_entry(config['DB_ITENS'], item_name) for item_name in extrair("Itens obtidos")]
 
         # Criação da página principal da sessão
-        res = self.notion.pages.create(
-            parent={"database_id": conf['DB_SESSAO']},
+        result = self.notion.pages.create(
+            parent={"database_id": config['DB_SESSAO']},
             properties={
-                "Nome": {"title": [{"text": {"content": f"Sessão {num_sessao}"}}]},
-                "Título": {"rich_text": [{"text": {"content": titulo_epico}}]},
-                "Sessão": {"number": int(num_sessao)},
-                "Data": {"date": {"start": data}},
-                "NPCs": {"relation": [{"id": v} for v in ids_npcs if v]},
-                "Itens": {"relation": [{"id": v} for v in ids_itens if v]}
+                "Nome": {"title": [{"text": {"content": f"Sessão {session_number}"}}]},
+                "Título": {"rich_text": [{"text": {"content": epic_title}}]},
+                "Sessão": {"number": int(session_number)},
+                "Data": {"date": {"start": date}},
+                "NPCs": {"relation": [{"id": value} for value in npc_ids if value]},
+                "Itens": {"relation": [{"id": value} for value in item_ids if value]}
             },
-            children=self.parse_markdown_to_blocks(linhas)
+            children=self.parse_markdown_to_blocks(lines)
         )
         
-        return res["id"]
+        return result["id"]

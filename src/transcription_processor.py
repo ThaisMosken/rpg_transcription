@@ -1,33 +1,33 @@
 import soundfile as sf
 from faster_whisper import WhisperModel
 
-def executar_transcricao(arquivo_entrada, arquivo_saida, glossario_nomes, dispositivo="cuda", precisao_modelo="float16", nome_modelo="large-v2"):
+def execute_transcription(input_file, output_file, glossary_names, device="cuda", model_precision="float16", model_name="large-v2"):
     """
     Realiza a transcrição de um áudio utilizando Faster-Whisper.
     """
     
-    print(f"📦 Carregando modelo: {nome_modelo} em {dispositivo} ({precisao_modelo}).")
+    print(f"📦 Carregando modelo: {model_name} em {device} ({model_precision}).")
 
     # Duração do arquivo
-    info_audio = sf.info(arquivo_entrada)
-    duration_min = int(info_audio.duration // 60)
-    duration_sec = int(info_audio.duration % 60)
+    audio_info = sf.info(input_file)
+    duration_min = int(audio_info.duration // 60)
+    duration_sec = int(audio_info.duration % 60)
     print(f"🎙️ Duração do áudio: {duration_min}min {duration_sec}s")
 
     if duration_min > 190:
         print(f"⚠️ Atenção: o áudio tem mais de 190 minutos. Pode ser necessário dividi-lo em múltiplas partes para evitar erros na transcrição")
 
-    # Configuração do modelo baseada no dispositivo
-    comp_type = precisao_modelo if dispositivo == "cuda" else "int8"
+    # Configuração do modelo baseada no device
+    compute_type = model_precision if device == "cuda" else "int8"
     
-    model = WhisperModel(nome_modelo, device=dispositivo, compute_type=precisao_modelo)
+    model = WhisperModel(model_name, device=device, compute_type=model_precision)
 
     # Preparação do prompt
-    prompt_string = ", ".join(glossario_nomes)
+    prompt_string = ", ".join(glossary_names)
 
     # Transcrição
     segments, info = model.transcribe(
-        arquivo_entrada,
+        input_file,
         language="pt", 
         vad_filter=True, 
         word_timestamps=False, 
@@ -35,8 +35,8 @@ def executar_transcricao(arquivo_entrada, arquivo_saida, glossario_nomes, dispos
     )
 
     # Processar e salvar o texto
-    with open(arquivo_saida, "w", encoding="utf-8") as f:
-        print(f"Salvando o texto em: {arquivo_saida}")
+    with open(output_file, "w", encoding="utf-8") as f:
+        print(f"Salvando o texto em: {output_file}")
         for segment in segments:
             f.write(f"{segment.text}\n")
             
