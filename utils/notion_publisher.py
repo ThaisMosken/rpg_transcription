@@ -1,11 +1,20 @@
 import re
+import requests
 from notion_client import Client
 
 class NotionPublisher:
     def __init__(self, token, databases_config):
+        self.token = token
         self.notion = Client(auth=token)
-        self.databases_config = databases_config 
+        self.databases_config = databases_config
         self.termos_genericos = ["aldeões", "habitantes", "guardas", "multidão", "plebeus", "cultistas", "crianças"]
+        
+        # Headers necessários para as chamadas via requests
+        self.headers = {
+            "Authorization": f"Bearer {token}",
+            "Content-Type": "application/json",
+            "Notion-Version": "2022-06-28"
+        }
 
     def _limpar_nome(self, texto):
         limpo = texto.replace("**", "")
@@ -32,19 +41,25 @@ class NotionPublisher:
         if not nome or len(nome) > 60 or "nenhum" in nome_low: return None
         if any(termo in nome_low for termo in self.termos_genericos): return None
 
-        query_res = self.notion.databases.query(
-            database_id=database_id,
-            filter={"property": "Nome", "title": {"equals": nome}}
-        )
+        # IMPLEMENTAÇÃO COM REQUESTS (Bypass do erro de atributo do SDK)
+        url_query = f"https://api.notion.com/v1/databases/{database_id}/query"
+        payload = {"filter": {"property": "Nome", "title": {"equals": nome}}}
         
-        if query_res["results"]:
-            return query_res["results"][0]["id"]
+        try:
+            response = requests.post(url_query, headers=self.headers, json=payload)
+            results = response.json().get("results", [])
+            if results: 
+                return results[0]["id"]
 
-        new_page = self.notion.pages.create(
-            parent={"database_id": database_id},
-            properties={"Nome": {"title": [{"text": {"content": nome}}]}}
-        )
-        return new_page["id"]
+            # Criação da página (usando o SDK que sabemos que possui o método 'create')
+            new_page = self.notion.pages.create(
+                parent={"database_id": database_id},
+                properties={"Nome": {"title": [{"text": {"content": nome}}]}}
+            )
+            return new_page["id"]
+        except Exception as e:
+            print(f"⚠️ Erro ao processar '{nome}': {e}")
+            return None
 
     def parse_markdown_to_blocks(self, linhas_texto):
         blocos = []
@@ -91,9 +106,11 @@ class NotionPublisher:
             match = re.search(f"{marcador}:?(.*?)(?:\n\n|\n#|\n[A-Z]|$)", inteiro_texto, re.DOTALL | re.IGNORECASE)
             return [l.strip() for l in match.group(1).split('\n') if l.strip()] if match else []
 
+        # NPCs e Itens específicos da mesa
         ids_npcs = [self.encontrar_ou_criar_entrada(conf['DB_NPCS'], n) for n in extrair("NPCs encontrados")]
         ids_itens = [self.encontrar_ou_criar_entrada(conf['DB_ITENS'], i) for i in extrair("Itens obtidos")]
 
+        # Criação da página principal da sessão
         res = self.notion.pages.create(
             parent={"database_id": conf['DB_SESSAO']},
             properties={
