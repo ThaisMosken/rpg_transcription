@@ -41,7 +41,6 @@ class NotionPublisher:
         if not nome or len(nome) > 60 or "nenhum" in nome_low: return None
         if any(termo in nome_low for termo in self.termos_genericos): return None
 
-        # IMPLEMENTAÇÃO COM REQUESTS (Bypass do erro de atributo do SDK)
         url_query = f"https://api.notion.com/v1/databases/{database_id}/query"
         payload = {"filter": {"property": "Nome", "title": {"equals": nome}}}
         
@@ -51,7 +50,7 @@ class NotionPublisher:
             if results: 
                 return results[0]["id"]
 
-            # Criação da página (usando o SDK que sabemos que possui o método 'create')
+            # Criação da página
             new_page = self.notion.pages.create(
                 parent={"database_id": database_id},
                 properties={"Nome": {"title": [{"text": {"content": nome}}]}}
