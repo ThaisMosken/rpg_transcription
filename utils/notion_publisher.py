@@ -77,6 +77,11 @@ class NotionPublisher:
         return blocos[:100] # Limite da API do Notion por chamada
 
     def publicar_sessao(self, mesa_id, num_sessao, data, arquivo_path):
+        if mesa_id not in self.databases_config:
+            raise ValueError(f"Mesa '{mesa_id}' não encontrada no arquivo de configuração.")
+            
+        conf = self.databases_config[mesa_id]
+
         with open(arquivo_path, "r", encoding="utf-8") as f:
             linhas = f.readlines()
 
