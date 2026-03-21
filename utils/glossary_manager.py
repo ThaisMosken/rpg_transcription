@@ -6,16 +6,16 @@ class GlossaryManager:
     # URL base onde os arquivos .md estão guardados (ajuste se necessário)
     BASE_URL = "https://raw.githubusercontent.com/ThaisMosken/rpg_transcription/main/lore/"
     
-    MESA_CONFIG = {
+    TABLE_CONFIG = {
         "dia": "glossary_dia.md",  #DiA: Descent into Avernos, mesa do Inferno
         "dit": "glossary_dit.md",  #DiT: Dead in Thay
         "id": "glossary_id.md", #ID: Icewind Dale, mesa dos Zéfiros
         "ooa": "glossary_ooa.md"  #OoA: Out of the Abyss
     }
 
-    def __init__(self, mesa_id):
-        self.mesa_id = mesa_id.lower() if mesa_id else ""
-        self.geral_url = f"{self.BASE_URL}glossary.md"
+    def __init__(self, table_id):
+        self.table_id = table_id.lower() if table_id else ""
+        self.general_url = f"{self.BASE_URL}glossary.md"
         
     def _fetch_content(self, url):
         try:
@@ -28,14 +28,14 @@ class GlossaryManager:
             return ""
 
     def get_full_glossary(self):
-        # 1. Busca o glossário geral
-        geral = self._fetch_content(self.geral_url)
+        # 1. Busca o glossário general_glossary
+        general_glossary = self._fetch_content(self.general_url)
         
         # 2. Busca o glossário específico se o ID existir no mapa
-        especifico = ""
-        filename = self.MESA_CONFIG.get(self.mesa_id)
+        specific_glossary = ""
+        filename = self.TABLE_CONFIG.get(self.table_id)
         if filename:
-            especifico = self._fetch_content(f"{self.BASE_URL}{filename}")
+            specific_glossary = self._fetch_content(f"{self.BASE_URL}{filename}")
         
         # 3. Combina e limpa espaços extras
-        return f"### GLOSSÁRIO GERAL\n{geral}\n\n### GLOSSÁRIO DA MESA\n{especifico}".strip()
+        return f"### GLOSSÁRIO GERAL\npc_name{general_glossary}\npc_name\npc_name### GLOSSÁRIO DA MESA\npc_name{specific_glossary}".strip()
