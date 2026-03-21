@@ -102,8 +102,8 @@ class NotionPublisher:
         full_text = "".join(lines)
 
         def extrair(marker):
-            match = re.search(f"{marker}:?(.*?)(?:\npc_name\npc_name|\npc_name#|\npc_name[A-Z]|$)", full_text, re.DOTALL | re.IGNORECASE)
-            return [line_item.strip() for line_item in match.group(1).split('\npc_name') if line_item.strip()] if match else []
+            match = re.search(f"{marker}:?(.*?)(?:\n\n|\n#|\n[A-Z]|$)", full_text, re.DOTALL | re.IGNORECASE)
+            return [line_item.strip() for line_item in match.group(1).split('\n') if line_item.strip()] if match else []
 
         # NPCs e Itens específicos da mesa
         npc_ids = [self.find_or_create_entry(config['DB_NPCS'], npc_name) for npc_name in extrair("NPCs encontrados")]

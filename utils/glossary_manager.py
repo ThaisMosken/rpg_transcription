@@ -28,7 +28,7 @@ class GlossaryManager:
             return ""
 
     def get_full_glossary(self):
-        # 1. Busca o glossário general_glossary
+        # 1. Busca o glossário geral
         general_glossary = self._fetch_content(self.general_url)
         
         # 2. Busca o glossário específico se o ID existir no mapa
@@ -38,4 +38,4 @@ class GlossaryManager:
             specific_glossary = self._fetch_content(f"{self.BASE_URL}{filename}")
         
         # 3. Combina e limpa espaços extras
-        return f"### GLOSSÁRIO GERAL\npc_name{general_glossary}\npc_name\npc_name### GLOSSÁRIO DA MESA\npc_name{specific_glossary}".strip()
+        return f"### GLOSSÁRIO GERAL\n{general_glossary}\n\n### GLOSSÁRIO DA MESA\n{specific_glossary}".strip()

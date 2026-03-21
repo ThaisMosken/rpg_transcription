@@ -23,7 +23,7 @@ def setup_session(table_id, session_number, project_folder, file_part=""):
     
     glossary_names = [
         line.strip("- *").strip()
-        for line in context_glossary.split('\npc_name')
+        for line in context_glossary.split('\n')
         if line.strip() and not line.startswith('#')
     ]
 

@@ -51,7 +51,7 @@ def generate_gemini_chronicle(api_key, transcription_path, output_path, context_
     }
 
     try:
-        print("\nEnviando solicitação ao model Gemini (Isso pode levar alguns segundos)...")
+        print("\nEnviando solicitação ao modelo Gemini (Isso pode levar alguns segundos)...")
         response = client.models.generate_content(
             model=model,
             contents=full_prompt,
@@ -61,7 +61,7 @@ def generate_gemini_chronicle(api_key, transcription_path, output_path, context_
         final_chronicle = response.text
         
         if not final_chronicle:
-            print("⚠️ O model não gerou resposta (possível bloqueio de segurança).")
+            print("⚠️ O modelo não gerou resposta (possível bloqueio de segurança).")
             return
 
         # 6. Salvar Resultado
