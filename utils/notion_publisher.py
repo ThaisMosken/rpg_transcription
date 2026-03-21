@@ -32,13 +32,13 @@ class NotionPublisher:
         if not nome or len(nome) > 60 or "nenhum" in nome_low: return None
         if any(termo in nome_low for termo in self.termos_genericos): return None
 
-        query = self.notion.databases.query(
+        query_res = self.notion.databases.query(
             database_id=database_id,
             filter={"property": "Nome", "title": {"equals": nome}}
         )
         
-        if query["results"]:
-            return query["results"][0]["id"]
+        if query_res["results"]:
+            return query_res["results"][0]["id"]
 
         new_page = self.notion.pages.create(
             parent={"database_id": database_id},
@@ -76,11 +76,9 @@ class NotionPublisher:
         return blocos[:100]
 
     def publicar_sessao(self, mesa_id, num_sessao, data, arquivo_path):
-        # 1. Verifica se a mesa existe na config
         if mesa_id not in self.databases_config:
-            raise ValueError(f"Mesa '{mesa_id}' não encontrada no arquivo de configuração.")
+            raise ValueError(f"Mesa '{mesa_id}' não encontrada na configuração.")
             
-        # 2. Pega as configurações específicas daquela mesa
         conf = self.databases_config[mesa_id]
 
         with open(arquivo_path, "r", encoding="utf-8") as f:
@@ -93,11 +91,9 @@ class NotionPublisher:
             match = re.search(f"{marcador}:?(.*?)(?:\n\n|\n#|\n[A-Z]|$)", inteiro_texto, re.DOTALL | re.IGNORECASE)
             return [l.strip() for l in match.group(1).split('\n') if l.strip()] if match else []
 
-        # 3. Busca NPCs e Itens usando os IDs específicos da MESA (conf)
         ids_npcs = [self.encontrar_ou_criar_entrada(conf['DB_NPCS'], n) for n in extrair("NPCs encontrados")]
         ids_itens = [self.encontrar_ou_criar_entrada(conf['DB_ITENS'], i) for i in extrair("Itens obtidos")]
 
-        # 4. Criar a página da Sessão no DB_SESSAO daquela mesa
         res = self.notion.pages.create(
             parent={"database_id": conf['DB_SESSAO']},
             properties={
