@@ -105,9 +105,8 @@ class NotionPublisher:
             match = re.search(f"{marker}:?(.*?)(?:\n\n|\n#|\n[A-Z]|$)", full_text, re.DOTALL | re.IGNORECASE)
             return [line_item.strip() for line_item in match.group(1).split('\n') if line_item.strip()] if match else []
 
-        # NPCs e Itens específicos da mesa
+        # NPCs específicos da mesa
         npc_ids = [self.find_or_create_entry(config['DB_NPCS'], npc_name) for npc_name in extrair("NPCs encontrados")]
-        item_ids = [self.find_or_create_entry(config['DB_ITENS'], item_name) for item_name in extrair("Itens obtidos")]
 
         # Criação da página principal da sessão
         result = self.notion.pages.create(
@@ -117,8 +116,7 @@ class NotionPublisher:
                 "Título": {"rich_text": [{"text": {"content": epic_title}}]},
                 "Sessão": {"number": int(session_number)},
                 "Data": {"date": {"start": date}},
-                "NPCs": {"relation": [{"id": value} for value in npc_ids if value]},
-                "Itens": {"relation": [{"id": value} for value in item_ids if value]}
+                "NPCs": {"relation": [{"id": value} for value in npc_ids if value]}
             },
             children=self.parse_markdown_to_blocks(lines)
         )
