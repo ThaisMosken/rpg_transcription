@@ -64,6 +64,7 @@
 - Faerûn
 - Good Mead
 - Icewind Dale
+- Krynn
 - Lonelywood
 - Luskan
 - Mournland

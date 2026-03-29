@@ -13,6 +13,7 @@
 - De Lata
 - Duvessa
 - Kalyth
+- Lorde Soth
 - Obb
 - Pedrinha
 - Pharus
