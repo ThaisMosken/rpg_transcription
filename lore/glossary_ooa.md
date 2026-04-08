@@ -11,11 +11,13 @@
 # Nomes de outros personagens
 - Asha
 - Buppido
+- Derendil
 - Eldeth
 - Ilvara
 - Ilvara Mizzrym
 - Jimjar
 - Jorlan
+- Príncipe Derendil
 - Shoor
 - Stool
 
