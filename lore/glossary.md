@@ -39,6 +39,7 @@
 - Bane
 - Bhaal
 - Helm
+- Lolth
 - Myrkul
 - Tiamat
 - Torm
