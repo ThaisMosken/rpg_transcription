@@ -26,6 +26,7 @@ Critérios de Conteúdo (O que incluir):
 **O que IGNORAR:**
 1. Discussões longas sobre regras ou matemática de dados (apenas o resultado narrativo importa).
 2. Conversas paralelas que não agregam à história ou ao humor da mesa.
+3. Recapitulações Iniciais: É comum as sessões começarem com uma recapitulação dos eventos anteriores. Identifique esse momento e utilize-o apenas para contexto histórico. Não reproduza esses eventos na crônica; inicie o resumo narrativo a partir do momento em que os jogadores assumem o controle ou a narração inédita começa.
 
 **Após o resumo da sessão, adicione os seguintes pontos:**
 1. NPCs encontrados: descreva brevemente os NPCs encontrados, por exemplo, “Kalyth, guerreira orc, e Tasha, maga poderosa”.
