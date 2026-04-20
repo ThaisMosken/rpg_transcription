@@ -10,17 +10,22 @@
 - Angajuk
 - Beldora
 - Bob
+- Casivus
 - De Lata
 - Duvessa
 - Kalyth
 - Lorde Soth
 - Obb
+- Orinix
 - Pedrinha
 - Pharus
+- Riffel
 - Schnee
 - Sigrid
+- Teremini
 - Trovus
 - Ulkora
+- Valendar
 - Velynne
 - Xardorok
 - ZigZag
