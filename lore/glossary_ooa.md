@@ -7,6 +7,7 @@
 - Ka'Cha Seis Passos
 - Pepe
 - Yali
+- Yali Almahl
 
 # Nomes de outros personagens
 - Asha
@@ -25,6 +26,7 @@
 - Blingdenstone
 - Gracklstugh
 - Menzoberranzan
+- Neverlight Grove
 - Underdark
 
 # Nomes de itens
