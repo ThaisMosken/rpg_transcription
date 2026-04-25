@@ -132,6 +132,7 @@
 - Ghoul
 - Hag
 - Kobold
+- Kuo-toa
 - Ooze
 - Owlbear
 - Plasmoid
@@ -147,3 +148,20 @@
 
 # Nomes de materiais
 - Chardalyn
+
+# Nomes de plantas e fungos
+- Berrystalk
+- Berrystalks
+- Bluecap
+- Bluecaps
+- Faerzress
+- Nightlight
+- Nightlights
+- Ormu
+- Timmask
+- Timmasks
+- Tongue of madness
+- Tongues of madness
+- Torchestalk
+- Torchestalks
+- Zurkwood

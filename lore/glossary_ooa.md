@@ -27,6 +27,7 @@
 - Gracklstugh
 - Menzoberranzan
 - Neverlight Grove
+- Sloobludop
 - Underdark
 
 # Nomes de itens
