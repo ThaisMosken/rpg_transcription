@@ -11,6 +11,7 @@
 
 # Nomes de outros personagens
 - Asha
+- Bloppblippodd
 - Buppido
 - Derendil
 - Eldeth
@@ -18,6 +19,7 @@
 - Ilvara Mizzrym
 - Jimjar
 - Jorlan
+- Ploopploopeen
 - Príncipe Derendil
 - Shoor
 - Stool
@@ -29,6 +31,11 @@
 - Neverlight Grove
 - Sloobludop
 - Underdark
+
+# Nomes de criaturas e entidades
+- Bilbdoolvpoolp
+- Demogorgon
+- Leemooggoogoon
 
 # Nomes de itens
 - 
