@@ -57,6 +57,9 @@
 - Forte Knucklebone
 
 # Nomes de itens
+- Credo Resoluto
+- Companheiro
 - Companion
 - Escudo do Senhor Oculto
+- Heavensfall
 - Shield of the Hidden Lord
