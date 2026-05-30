@@ -129,6 +129,7 @@
 - Dretch
 - Dretches
 - Efreeti
+- Flumph
 - Ghoul
 - Hag
 - Kobold

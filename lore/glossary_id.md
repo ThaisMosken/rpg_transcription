@@ -14,6 +14,8 @@
 - De Lata
 - Duvessa
 - Kalyth
+- Kas
+- Kas, o Traidor
 - Lorde Soth
 - Obb
 - Orinix
@@ -38,5 +40,6 @@
 
 # Nomes de itens
 - Cajado das Sete Partes
+- Espada de Kas
 - Professor Skant
 - Rod of Seven Parts
