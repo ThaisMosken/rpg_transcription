@@ -26,6 +26,7 @@
 - Jorge
 - Kreeg
 - Lulu
+- Macarquinhos
 - Maggie
 - Mad Maggie
 - Marquinhos
