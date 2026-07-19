@@ -16,6 +16,8 @@
 - Arkhan
 - Arkhan, o Cruel
 - Babachuleta
+- Barnabás
+- Chukka
 - Clonk
 - Crokek'toeck
 - Falaster
@@ -24,12 +26,15 @@
 - Fisk
 - Gideon
 - Jorge
+- Kakki
 - Kreeg
 - Lulu
 - Macarquinhos
-- Maggie
 - Mad Maggie
+- Maggie
+- Maggie Doida
 - Marquinhos
+- Mickey
 - Mortlock
 - Mortlock Vanthampur
 - Nicolai
@@ -51,6 +56,7 @@
 - Thurstwell Vanthampur
 - Ulder Ravengard
 - Vanthampur
+- Wazzik
 - Zindra
 - Zodge
 
