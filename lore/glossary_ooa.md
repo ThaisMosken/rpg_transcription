@@ -15,6 +15,7 @@
 - Buppido
 - Derendil
 - Eldeth
+- Glabagool
 - Ilvara
 - Ilvara Mizzrym
 - Jimjar

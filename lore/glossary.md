@@ -28,7 +28,7 @@
 - Warlock
 - Wizard
 
-# Nomes de outros personagens
+# Nomes de outros personagens canônicos
 - Alustriel
 - Mordenkainen
 - Ontharr Frume
@@ -38,7 +38,9 @@
 - Auril
 - Bane
 - Bhaal
+- Demogorgon
 - Helm
+- Juiblex
 - Lolth
 - Myrkul
 - Tiamat
@@ -46,6 +48,7 @@
 - Umberlee
 - Vecna
 - Zariel
+- Zuggtmoy
 
 # Nomes de locais
 - Abyss
