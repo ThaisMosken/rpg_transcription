@@ -1,4 +1,6 @@
 # Nomes de personagens de jogadores
+- Calliope
+- Calliope Nightingale
 - Kay
 - Orog
 - Penélope
@@ -25,6 +27,7 @@
 - Feonor
 - Fisk
 - Gideon
+- Haruman
 - Jorge
 - Kakki
 - Kreeg
@@ -39,9 +42,11 @@
 - Mortlock Vanthampur
 - Nicolai
 - Nicolai Smith
+- Olanthius
 - Pherria
 - Pherria Jynks
 - Princeps Kovik
+- Ralzala
 - Ravengard
 - Reya
 - Reya Mantlemorn
@@ -55,13 +60,17 @@
 - Thurstwell
 - Thurstwell Vanthampur
 - Ulder Ravengard
+- Uldrak
 - Vanthampur
 - Wazzik
 - Zindra
 - Zodge
 
 # Nomes de locais
+- Castelo de Alabastro
+- Cripta dos Cavaleiros do Inferno
 - Forte Knucklebone
+- Torre de Urm
 
 # Nomes de itens
 - Credo Resoluto
