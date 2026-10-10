@@ -37,14 +37,18 @@
 # Nomes de entidades de grande poder (deuses, diabos, etc)
 - Auril
 - Bane
+- Beshaba
 - Bhaal
 - Demogorgon
+- Dumathoin
 - Helm
+- Ilsensine
 - Juiblex
 - Lolth
 - Myrkul
 - Tiamat
 - Torm
+- Tymora
 - Umberlee
 - Vecna
 - Zariel
@@ -60,6 +64,7 @@
 - Caer-Dineval
 - Caer-Konig
 - Candlekeep
+- Costa da Espada
 - Dougan's Hole
 - Easthaven
 - Eberron
@@ -74,6 +79,7 @@
 - Mournland
 - Netheril
 - Neverwinter
+- Phandalin
 - Targos
 - Termalaine
 - Thay
@@ -129,9 +135,11 @@
 # Nomes de tipos de criaturas
 - Abishai
 - Behir
+- Beholder
 - Dretch
 - Dretches
 - Efreeti
+- Espectador
 - Flumph
 - Ghoul
 - Hag
@@ -142,6 +150,8 @@
 - Plasmoid
 - Mezzoloth
 - Mímico
+- Mind Flayer
+- Nothic
 - Redcap
 - Slime
 - Thri-kreen
@@ -152,6 +162,7 @@
 
 # Nomes de materiais
 - Chardalyn
+- Mithral
 
 # Nomes de plantas e fungos
 - Berrystalk

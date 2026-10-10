@@ -11,7 +11,8 @@ class GlossaryManager:
         "dia": "glossary_dia.md",  #DiA: Descent into Avernos, mesa do Inferno
         "dit": "glossary_dit.md",  #DiT: Dead in Thay
         "id": "glossary_id.md",    #ID: Icewind Dale, mesa dos Zéfiros
-        "ooa": "glossary_ooa.md"   #OoA: Out of the Abyss
+        "ooa": "glossary_ooa.md",   #OoA: Out of the Abyss
+        "tso": "glossary_tso.md"   #TSO: The Shattered Obelisk
     }
 
     def __init__(self, table_id):
