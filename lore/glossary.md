@@ -39,6 +39,7 @@
 - Bane
 - Beshaba
 - Bhaal
+- Callarduran Smoothhands
 - Demogorgon
 - Dumathoin
 - Helm
@@ -124,6 +125,7 @@
 
 # Nomes de associações
 - Aliança dos Lordes
+- Enclave do Coração de Pedra
 - Enclave Esmeralda
 - Flaming Fists
 - Harpers

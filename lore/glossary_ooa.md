@@ -13,17 +13,23 @@
 - Asha
 - Bloppblippodd
 - Buppido
+- Dasco Pickshine
 - Derendil
+- Dorbo Diggermattock
 - Eldeth
 - Glabagool
+- Gliphick Shroomlight
+- Gurnik
 - Ilvara
 - Ilvara Mizzrym
 - Jimjar
 - Jorlan
 - Ploopploopeen
 - Príncipe Derendil
+- Senni Diggermattock
 - Shoor
 - Stool
+- Tap
 
 # Nomes de locais
 - Blingdenstone
