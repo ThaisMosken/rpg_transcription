@@ -32,6 +32,7 @@
 - Alustriel
 - Mordenkainen
 - Ontharr Frume
+- Slarkrethel
 - Tasha
 
 # Nomes de entidades de grande poder (deuses, diabos, etc)
@@ -74,6 +75,7 @@
 - Faerûn
 - Good Mead
 - Icewind Dale
+- Ilhas Púrpura
 - Krynn
 - Lonelywood
 - Luskan
@@ -131,6 +133,7 @@
 - Harpers
 - Hellriders
 - Ordem da Manopla
+- Sociedade do Kraken
 - Zéfiros
 - Zhentarim
 
