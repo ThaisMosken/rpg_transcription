@@ -1,0 +1,141 @@
+# Nomes de personagens de jogadores
+- Bob
+- Randson
+- Tarkah
+
+# Nomes de outros personagens
+- Ahooshathan
+- Aida Camber
+- Ander
+- Ashripask
+- Barthen
+- Bashudu
+- Bessie
+- Brelta Gemblade
+- Cameren
+- Carp
+- Carp Alderleaf
+- Cathlette Camber
+- Chalaag
+- Chals
+- Charnyz
+- Chishinix
+- Daisy
+- Daran
+- Daran Edermath
+- Dareth Grint
+- Duoro Engletor
+- Elise
+- Elsa
+- Erdan Vosselth
+- Falfark
+- Fremine
+- Frowode
+- Garaele
+- Golcuus
+- Gossa
+- Grandlejaw
+- Grista
+- Groushim
+- Gulguush
+- Gwyn Oresong
+- Halia
+- Halia Thornton
+- Harbin Wester
+- Harralie
+- Hashutu
+- Hjoldak Hollowhelm
+- Honna
+- Hovnar Tartesh
+- Ilsensine
+- Ilvaash
+- Irmã Garaele
+- Jitterjaws
+- Jomlus
+- Karthim Humblepick
+- Kellikilli
+- Kianka
+- Klaudel Kamven
+- Larnon Veddin
+- Lowarnizel
+- Malinia
+- Marthungrim
+- Marthungrim, o Valente
+- Menvin Tartesh
+- Mildra Merkel
+- Mublinesh
+- Murnig
+- Nalpina Goldstone
+- Narth
+- Naruv
+- Nellik
+- Nelja
+- Nouashu
+- Nythalyn Henlifel
+- Ontharyx Henlifel
+- Oskar Ninebough
+- Oshundo
+- Paulam
+- Paulina Previne
+- Pip
+- Pip Stonehill
+- Qunbraxel
+- Rivibiddel
+- Roda-da-Fortuna
+- Ruxithid
+- Sábia Borblish
+- Shalfi Lewin
+- Shalghast
+- Shansa
+- Tamara Stonehill
+- Tera
+- Thawnia Browne
+- Thiala Sharne
+- Thorgran Ironquill
+- Toblen Stonehill
+- Trilena Stonehill
+- Tumblewick Rollins
+- Ulthundul
+- Unmiel
+- Vakketar
+- Valsyx
+- Varakkta
+- Vazzi
+- Vellios Keethe
+- Verno Tharbun
+- Violet
+- Voalsh
+- Vundru
+- Wallin Kreeve
+- Wramble
+- Yanthdel Henlifel
+- Zoklork
+- Zorzula
+- Zuluthl
+
+# Nomes de locais
+- Ânima de Ilvaash
+- Caverna do Eco da Onda
+- Cripta de Talhund
+- Empório de Barthen
+- Encruzilhada da Gaiola
+- Estalagem Stonehill
+- Fazenda Alderleaf
+- Gigante Adormecido
+- Illithinoch
+- Império Netherese
+- O Nematódeo
+- O Vazio Sem Fim
+- Pântano da Dúvida
+- Pomar Edermath
+- Refúgio de Zorzula
+- Santuário Índigo
+- Talhundereth
+- Trilha de Triboar
+
+# Nomes de criaturas e entidades
+- Ilvaash
+
+# Nomes de casas drow
+- Casa Azfadiel
+- Casa Triestoroth
