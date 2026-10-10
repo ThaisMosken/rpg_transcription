@@ -67,6 +67,7 @@
 - Zodge
 
 # Nomes de locais
+- Arcos de Ulloch
 - Castelo de Alabastro
 - Cripta dos Cavaleiros do Inferno
 - Forte Knucklebone
