@@ -20,6 +20,7 @@
 - Glabagool
 - Gliphick Shroomlight
 - Gurnik
+- Gurnik Tapfinger
 - Ilvara
 - Ilvara Mizzrym
 - Jimjar
