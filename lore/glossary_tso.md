@@ -134,7 +134,9 @@
 - Trilha de Triboar
 
 # Nomes de criaturas e entidades
+- Goblin psíquico
 - Ilvaash
+- Psi goblin
 
 # Nomes de casas drow
 - Casa Azfadiel
