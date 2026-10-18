@@ -12,6 +12,7 @@
 - Bashudu
 - Bessie
 - Brelta Gemblade
+- Brocc
 - Cameren
 - Carp
 - Carp Alderleaf
@@ -24,6 +25,7 @@
 - Daran
 - Daran Edermath
 - Dareth Grint
+- Dum
 - Duoro Engletor
 - Elise
 - Elsa
@@ -50,9 +52,11 @@
 - Ilsensine
 - Ilvaash
 - Irmã Garaele
+- Jahnaki
 - Jitterjaws
 - Jomlus
 - Karthim Humblepick
+- Kathra
 - Kellikilli
 - Kianka
 - Klaudel Kamven
@@ -80,6 +84,7 @@
 - Pip
 - Pip Stonehill
 - Qunbraxel
+- Rand
 - Rivibiddel
 - Roda-da-Fortuna
 - Ruxithid
