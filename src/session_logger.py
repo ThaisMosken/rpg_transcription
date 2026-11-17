@@ -1,6 +1,8 @@
+from datetime import datetime
 import json
 import os
 import re
+import time
 import requests
 from google import genai
 from google.genai import types
@@ -25,7 +27,6 @@ def _load_prompt_template(template):
     try:
         response = requests.get(prompt_url, timeout=15)
         response.raise_for_status()
-        print(f"✅ Template '{template}' baixado do GitHub com sucesso!")
         return response.text
     except Exception as github_err:
         repo_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -35,6 +36,71 @@ def _load_prompt_template(template):
             with open(local_path, "r", encoding="utf-8") as f:
                 return f.read()
         raise RuntimeError(f"Não foi possível carregar o template '{template}': {github_err}")
+
+
+def fetch_notion_session_dates(notion_token, notion_config, table_id):
+    """
+    Consulta o database do Notion da mesa e retorna um dicionário {int(sessao): 'YYYY-MM-DD'}.
+    Respeita paginacao (>100 registros) e o filtro opcional 'DB_CAMPAIGN'.
+    """
+    if table_id not in notion_config:
+        print(f"⚠️ Mesa '{table_id}' não encontrada em notion_config.json.")
+        return {}
+
+    cfg = notion_config[table_id]
+    database_id = cfg["DB_SESSAO"]
+    query_url = f"https://api.notion.com/v1/databases/{database_id}/query"
+    headers = {
+        "Authorization": f"Bearer {notion_token}",
+        "Content-Type": "application/json",
+        "Notion-Version": "2022-06-28"
+    }
+
+    payload = {"page_size": 100}
+    if "DB_CAMPAIGN" in cfg and cfg["DB_CAMPAIGN"]:
+        payload["filter"] = {
+            "property": "Campanha",
+            "rich_text": {"equals": cfg["DB_CAMPAIGN"]}
+        }
+
+    dates_map = {}
+    has_more = True
+    next_cursor = None
+
+    try:
+        while has_more:
+            if next_cursor:
+                payload["start_cursor"] = next_cursor
+
+            resp = requests.post(query_url, headers=headers, json=payload, timeout=20)
+            resp.raise_for_status()
+            data = resp.json()
+
+            for page in data.get("results", []):
+                props = page.get("properties", {})
+                sessao_num = props.get("Sessão", {}).get("number")
+                data_obj = props.get("Data", {}).get("date")
+                start_date = data_obj.get("start") if data_obj else None
+
+                if sessao_num is not None and start_date:
+                    dates_map[int(sessao_num)] = start_date[:10]
+
+            has_more = data.get("has_more", False)
+            next_cursor = data.get("next_cursor")
+
+        print(f"📅 Notion consultado: {len(dates_map)} datas recuperadas para '{table_id}'.")
+
+        # Alerta preventivo caso datas antigas tenham sido cadastradas com uma data padrão única
+        if len(dates_map) >= 5 and len(set(dates_map.values())) == 1:
+            print(
+                "⚠️ ATENÇÃO: Todas as sessões retornaram a mesma data no Notion "
+                "(possível data padrão histórica)."
+            )
+
+    except Exception as e:
+        print(f"⚠️ Falha ao consultar datas no Notion (usando fallback de arquivo): {e}")
+
+    return dates_map
 
 
 def consolidate_session_logs(logs_folder, table_id, batch_size=20):
@@ -60,10 +126,8 @@ def consolidate_session_logs(logs_folder, table_id, batch_size=20):
         print(f"⚠️ Nenhum arquivo individual encontrado para a mesa '{table_id}' em {logs_folder}.")
         return []
 
-    # Ordena numericamente pelo número inteiro da sessão (001 < 08 < 10 < 100)
     matched_logs.sort(key=lambda item: item[0])
 
-    # Agrupa em faixas fixas de 20 sessões (1-20 -> Parte 1, 21-40 -> Parte 2, etc.)
     buckets = {}
     for session_num, filename in matched_logs:
         part_num = (max(session_num, 1) - 1) // batch_size + 1
@@ -97,60 +161,24 @@ def consolidate_session_logs(logs_folder, table_id, batch_size=20):
     return updated_files
 
 
-def generate_gemini_log(
-    api_key,
+def _generate_log_markdown(
+    client,
+    gemini_cfg,
+    base_prompt,
     transcription_path,
     chronicle_path,
-    output_path,
     context_glossary,
-    table_id,
     session_id,
     session_date,
-    template="template_log_v1",
-    model=None,
-    batch_size=20
+    model=None
 ):
-    """
-    Gera o log factual individual da sessão cruzando transcrição, crônica e glossário,
-    e atualiza os arquivos consolidados na pasta Logs.
-    """
-    # 1. Carregar configurações dos modelos
-    try:
-        gemini_cfg = _load_gemini_config()
-    except Exception as e:
-        print(f"❌ Erro ao carregar configuração do Gemini: {e}")
-        return
+    """Executa a chamada à API do Gemini com fallback e retorna o Markdown do log."""
+    with open(transcription_path, "r", encoding="utf-8") as f:
+        transcription_text = f.read()
 
-    # 2. Carregar prompt base
-    try:
-        base_prompt = _load_prompt_template(template)
-    except Exception as e:
-        print(f"❌ Erro ao carregar o prompt de log: {e}")
-        return
+    with open(chronicle_path, "r", encoding="utf-8") as f:
+        chronicle_text = f.read()
 
-    # 3. Configurar cliente da API
-    try:
-        client = genai.Client(api_key=api_key)
-    except Exception as e:
-        print(f"❌ Falha ao configurar o cliente Gemini: {e}")
-        return
-
-    # 4. Ler transcrição e crônica revisada
-    try:
-        with open(transcription_path, "r", encoding="utf-8") as f:
-            transcription_text = f.read()
-    except FileNotFoundError:
-        print(f"❌ Arquivo de transcrição não encontrado: {transcription_path}")
-        return
-
-    try:
-        with open(chronicle_path, "r", encoding="utf-8") as f:
-            chronicle_text = f.read()
-    except FileNotFoundError:
-        print(f"❌ Arquivo de crônica não encontrado: {chronicle_path}")
-        return
-
-    # 5. Montar prompt completo
     full_prompt = f"""
     **METADADOS DA SESSÃO:**
     - ID da Sessão: {session_id}
@@ -172,7 +200,6 @@ def generate_gemini_log(
     {base_prompt}
     """
 
-    # 6. Resolver fila de modelos (mesma lógica do chronicler.py)
     default_models = gemini_cfg.get("default_models", [])
     if model is None:
         modelos_prioridade = list(default_models)
@@ -182,8 +209,7 @@ def generate_gemini_log(
         modelos_prioridade = [model] + [m for m in default_models if m != model]
 
     if not modelos_prioridade:
-        print("❌ Nenhum modelo configurado em 'default_models' ou informado via parâmetro.")
-        return
+        raise ValueError("Nenhum modelo configurado em 'default_models' ou informado via parâmetro.")
 
     max_tokens = gemini_cfg.get("max_output_tokens", 16384)
     fallback_codes = set(gemini_cfg.get("fallback_error_codes", [429]))
@@ -192,7 +218,6 @@ def generate_gemini_log(
 
     response = None
 
-    # 7. Chamada à API com fallback automático
     for modelo_atual in modelos_prioridade:
         if modelo_atual.startswith(no_sampling_prefixes):
             generation_config = types.GenerateContentConfig(
@@ -205,7 +230,7 @@ def generate_gemini_log(
             )
 
         try:
-            print(f"\nGerando Log Factual com o modelo {modelo_atual} (Isso pode levar alguns segundos)...")
+            print(f"  🤖 Gerando {session_id} com {modelo_atual}...")
             response = client.models.generate_content(
                 model=modelo_atual,
                 contents=full_prompt,
@@ -215,30 +240,202 @@ def generate_gemini_log(
 
         except APIError as e:
             if e.code in fallback_codes and modelo_atual != modelos_prioridade[-1]:
-                print(f"⚠️ Cota excedida no {modelo_atual} (Erro {e.code}). Tentando fallback...")
+                print(f"  ⚠️ Cota excedida no {modelo_atual} (Erro {e.code}). Tentando fallback...")
                 continue
-            print(f"❌ ERRO DE API ({e.code}): {e.message}")
-            return
-        except Exception as e:
-            print(f"❌ Erro inesperado: {e}")
-            return
+            raise RuntimeError(f"ERRO DE API ({e.code}): {e.message}")
 
     if not response or not response.text:
-        print("⚠️ O modelo não gerou resposta (possível bloqueio de segurança).")
+        raise RuntimeError("O modelo retornou resposta vazia (possível bloqueio de segurança).")
+
+    return response.text.strip() + "\n"
+
+
+def generate_gemini_log(
+    api_key,
+    transcription_path,
+    chronicle_path,
+    output_path,
+    context_glossary,
+    table_id,
+    session_id,
+    session_date,
+    template="template_log_v1",
+    model=None,
+    batch_size=20
+):
+    """Fluxo unitário (Bloco 7): gera o log da sessão atual e atualiza os consolidados."""
+    try:
+        gemini_cfg = _load_gemini_config()
+        base_prompt = _load_prompt_template(template)
+        client = genai.Client(api_key=api_key)
+
+        log_md = _generate_log_markdown(
+            client=client,
+            gemini_cfg=gemini_cfg,
+            base_prompt=base_prompt,
+            transcription_path=transcription_path,
+            chronicle_path=chronicle_path,
+            context_glossary=context_glossary,
+            session_id=session_id,
+            session_date=session_date,
+            model=model
+        )
+    except Exception as e:
+        print(f"❌ Falha ao gerar log de {session_id}: {e}")
         return
 
-    # 8. Salvar Log Individual diretamente na pasta Logs
     logs_folder = os.path.dirname(output_path)
     os.makedirs(logs_folder, exist_ok=True)
 
     with open(output_path, "w", encoding="utf-8") as f:
-        f.write(response.text.strip() + "\n")
+        f.write(log_md)
 
     print(f"✅ SUCESSO! Log individual salvo em: {output_path}")
 
-    # 9. Atualizar consolidação de 20 em 20 sessões
     consolidate_session_logs(
         logs_folder=logs_folder,
         table_id=table_id,
         batch_size=batch_size
     )
+
+
+def process_backlog_logs(
+    api_key,
+    archive_folder,
+    logs_folder,
+    context_glossary,
+    table_id,
+    notion_token=None,
+    notion_config=None,
+    template="template_log_v1",
+    model=None,
+    batch_size=20,
+    sleep_seconds=15,
+    max_sessions_per_run=15,
+    overwrite=False
+):
+    """
+    Processa em lote (backlog) as sessões antigas de `archive_folder`,
+    recuperando datas do Notion, respeitando limites de RPM/RPD e consolidando ao final.
+    """
+    if not os.path.exists(archive_folder):
+        print(f"❌ Pasta de arquivo não encontrada: {archive_folder}")
+        return
+
+    os.makedirs(logs_folder, exist_ok=True)
+
+    # 1. Descobrir e parear crônicas + transcrições da mesa
+    chronicle_pattern = re.compile(rf"^({re.escape(table_id)}(\d+))_cronica\.md$")
+    paired_sessions = []
+
+    for filename in os.listdir(archive_folder):
+        match = chronicle_pattern.match(filename)
+        if not match:
+            continue
+
+        session_id = match.group(1)       # Ex.: DIA001 ou DIA01
+        session_num = int(match.group(2)) # Ex.: 1
+        chronicle_path = os.path.join(archive_folder, filename)
+        transcription_path = os.path.join(archive_folder, f"{session_id}_transcricao_final.txt")
+
+        if not os.path.exists(transcription_path):
+            print(f"⚠️ Pulando {session_id}: crônica encontrada, mas falta '{session_id}_transcricao_final.txt'.")
+            continue
+
+        output_path = os.path.join(logs_folder, f"{session_id}_log.md")
+        paired_sessions.append({
+            "session_num": session_num,
+            "session_id": session_id,
+            "chronicle_path": chronicle_path,
+            "transcription_path": transcription_path,
+            "output_path": output_path
+        })
+
+    paired_sessions.sort(key=lambda item: item["session_num"])
+    print(f"🔎 {len(paired_sessions)} pares completos (crônica + transcrição) encontrados para '{table_id}'.")
+
+    # 2. Filtrar apenas o que falta processar (checkpoint)
+    pending_sessions = [
+        s for s in paired_sessions
+        if overwrite or not os.path.exists(s["output_path"])
+    ]
+
+    if not pending_sessions:
+        print("✅ Todas as sessões encontradas já possuem arquivo _log.md! Atualizando apenas consolidados...")
+        consolidate_session_logs(logs_folder=logs_folder, table_id=table_id, batch_size=batch_size)
+        return
+
+    to_process = pending_sessions[:max_sessions_per_run]
+    remaining_after_run = len(pending_sessions) - len(to_process)
+    print(
+        f"📋 Pendentes: {len(pending_sessions)} | "
+        f"Serão processadas nesta execução: {len(to_process)} "
+        f"(restarão {remaining_after_run} para as próximas execuções)."
+    )
+
+    # 3. Buscar datas no Notion
+    notion_dates = {}
+    if notion_token and notion_config:
+        notion_dates = fetch_notion_session_dates(notion_token, notion_config, table_id)
+
+    # 4. Carregar config, template e cliente Gemini uma única vez
+    try:
+        gemini_cfg = _load_gemini_config()
+        base_prompt = _load_prompt_template(template)
+        client = genai.Client(api_key=api_key)
+    except Exception as e:
+        print(f"❌ Falha na inicialização do lote: {e}")
+        return
+
+    # 5. Loop controlado por cadência
+    processed_count = 0
+    for idx, item in enumerate(to_process, start=1):
+        s_num = item["session_num"]
+        s_id = item["session_id"]
+
+        if s_num in notion_dates:
+            s_date = notion_dates[s_num]
+            date_source = "Notion"
+        else:
+            mtime = os.path.getmtime(item["transcription_path"])
+            s_date = datetime.fromtimestamp(mtime).strftime("%Y-%m-%d")
+            date_source = "Data do arquivo (fallback)"
+
+        print(f"\n[{idx}/{len(to_process)}] Processando {s_id} (Data: {s_date} [{date_source}])...")
+
+        try:
+            log_md = _generate_log_markdown(
+                client=client,
+                gemini_cfg=gemini_cfg,
+                base_prompt=base_prompt,
+                transcription_path=item["transcription_path"],
+                chronicle_path=item["chronicle_path"],
+                context_glossary=context_glossary,
+                session_id=s_id,
+                session_date=s_date,
+                model=model
+            )
+
+            with open(item["output_path"], "w", encoding="utf-8") as f:
+                f.write(log_md)
+
+            processed_count += 1
+            print(f"  ✅ Salvo: {item['output_path']}")
+
+        except Exception as e:
+            print(f"  ❌ Erro em {s_id}: {e}")
+            if "429" in str(e) or "RESOURCE_EXHAUSTED" in str(e):
+                print("🛑 Limite diário (RPD) ou de taxa atingido em todos os modelos. Encerrando lote com segurança.")
+                break
+
+        # Pausa entre chamadas para respeitar o teto de 5 RPM do Free Tier
+        if idx < len(to_process):
+            print(f"  ⏳ Aguardando {sleep_seconds}s (controle de RPM)...")
+            time.sleep(sleep_seconds)
+
+    # 6. Consolidação única ao final
+    if processed_count > 0:
+        print("\n🔄 Atualizando arquivos consolidados de 20 em 20 sessões...")
+        consolidate_session_logs(logs_folder=logs_folder, table_id=table_id, batch_size=batch_size)
+
+    print(f"\n🏁 Lote concluído: {processed_count} logs gerados nesta execução.")
