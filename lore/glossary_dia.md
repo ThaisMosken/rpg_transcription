@@ -19,6 +19,7 @@
 - Arkhan, o Cruel
 - Babachuleta
 - Barnabás
+- Chispa
 - Chukka
 - Clonk
 - Crokek'toeck
@@ -30,7 +31,9 @@
 - Haruman
 - Jorge
 - Kakki
+- Kostchtchie
 - Kreeg
+- Krull
 - Lulu
 - Macarquinhos
 - Mad Maggie
@@ -42,10 +45,12 @@
 - Mortlock Vanthampur
 - Nicolai
 - Nicolai Smith
+- Obatala
 - Olanthius
 - Pherria
 - Pherria Jynks
 - Princeps Kovik
+- Raggadragga
 - Ralzala
 - Ravengard
 - Reya
@@ -69,8 +74,11 @@
 # Nomes de locais
 - Arcos de Ulloch
 - Castelo de Alabastro
+- Cidadela Sangrenta
 - Cripta dos Cavaleiros do Inferno
+- Forja de Bel
 - Forte Knucklebone
+- Goela de Kostchtchie
 - Torre de Urm
 
 # Nomes de itens
