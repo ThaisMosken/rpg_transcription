@@ -1,0 +1,15 @@
+{
+  "default_models": [
+    "gemini-4-hydrogen",
+    "gemini-3.8-flash"
+  ],
+  "max_output_tokens": 16384,
+  "fallback_error_codes": [429],
+  "no_sampling_prefixes": [
+    "gemini-4"
+  ],
+  "sampling_params": {
+    "temperature": 0.7,
+    "top_p": 0.95
+  }
+}
