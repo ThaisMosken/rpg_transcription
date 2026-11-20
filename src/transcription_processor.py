@@ -5,7 +5,12 @@ import re
 import subprocess
 
 import soundfile as sf
-from faster_whisper import WhisperModel
+
+# As bibliotecas CUDA 12 precisam ser pré-carregadas ANTES de importar o faster-whisper.
+from utils.cuda_preloader import preload_cuda_libraries
+preload_cuda_libraries()
+
+from faster_whisper import WhisperModel  # noqa: E402
 
 def execute_transcription(input_file, output_file, glossary_names, device="cuda", model_precision="float16", model_name="large-v2"):
     """
