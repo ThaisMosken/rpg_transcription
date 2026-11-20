@@ -1,5 +1,7 @@
 # Nomes de personagens de jogadores
 - Bob
+- Bob Rogue
+- Mallik
 - Randson
 - Tarkah
 
@@ -25,6 +27,7 @@
 - Daran
 - Daran Edermath
 - Dareth Grint
+- Drupi
 - Dum
 - Duoro Engletor
 - Elise
@@ -40,6 +43,7 @@
 - Grista
 - Groushim
 - Gulguush
+- Gundren
 - Gwyn Oresong
 - Halia
 - Halia Thornton
@@ -75,6 +79,7 @@
 - Nellik
 - Nelja
 - Nouashu
+- Nundro
 - Nythalyn Henlifel
 - Ontharyx Henlifel
 - Oskar Ninebough
@@ -93,6 +98,7 @@
 - Shalghast
 - Shansa
 - Tamara Stonehill
+- Tharden
 - Tera
 - Thawnia Browne
 - Thiala Sharne
@@ -146,3 +152,7 @@
 # Nomes de casas drow
 - Casa Azfadiel
 - Casa Triestoroth
+
+# Termos inventados pelos jogadores
+- Harpeiros
+- Prensa Kobold
