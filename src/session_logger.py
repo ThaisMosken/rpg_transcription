@@ -263,7 +263,7 @@ def generate_gemini_log(
     model=None,
     batch_size=20
 ):
-    """Fluxo unitário (Bloco 7): gera o log da sessão atual e atualiza os consolidados."""
+    """Fluxo unitário (Bloco 6): gera o log da sessão atual e atualiza os consolidados."""
     try:
         gemini_cfg = _load_gemini_config()
         base_prompt = _load_prompt_template(template)

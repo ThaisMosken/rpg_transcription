@@ -1,4 +1,8 @@
 faster-whisper
-whisperX
+av<19
+notion-client
+soundfile
+requests
 google-genai
-ffmpeg-python
+nvidia-cublas-cu12
+nvidia-cudnn-cu12==9.*
