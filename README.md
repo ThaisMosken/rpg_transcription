@@ -70,6 +70,10 @@ O processo de instalação de dependências exige um reinício do ambiente para 
 > AÇÃO CRÍTICA: Após a execução dos Blocos 1 e 2 (Instalações Iniciais), você deve clicar no botão "RESTART SESSION" que aparecerá no log ou ir em Runtime > Restart session.
 > Não execute esses blocos novamente após o reset. Siga diretamente para o Bloco 3.
 
+## Publicação em lote no Notion (backlog)
+Para publicar no Notion as crônicas de sessões antigas, use `notebooks/backlog_notion.ipynb`.
+O lote lê os arquivos `{ID_MESA}<num>_cronica.md` da pasta do projeto no Drive, pula as sessões que já existem no Notion (sem sobrescrever) e aplica `DEFAULT_DATE` a todas as publicadas. Se a consulta ao Notion falhar, nada é publicado.
+
 ## Estrutura de Arquivos Gerados
 * IDxxw.wav: Áudio convertido (Entrada).
 * IDxx_transcricao_final_parte_NNN.txt: Transcrição de cada parte (mantida após a consolidação)
