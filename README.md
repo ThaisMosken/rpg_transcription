@@ -39,12 +39,12 @@ Get-ChildItem *.mp3 | ForEach-Object { ffmpeg -i $_.Name -ac 1 -ar 16000 -c:a pc
 ```
 
 ### Conversão para WAV (FFmpeg) para Arquivos Grandes
-Algumas vezes o Colab falha no plano gratuito (GPU T4) ao tentar processar arquivos muito grandes (maiores do que 3 horas). Para cortar os arquivos em partes de 150 minutos, utilize o seguinte comando:
+Algumas vezes o Colab falha no plano gratuito (GPU T4) ao tentar processar arquivos muito grandes (maiores do que 3 horas). Para cortar os arquivos em partes de 120 minutos, utilize o seguinte comando:
 
 **No Git Bash:**
 ```bash
 cd "<CAMINHO_DA_PASTA_DOS_ARQUIVOS>"
-NOME="ID54"; ffmpeg -i "$NOME.mp3" -f segment -segment_time 02:30:00 -ac 1 -ar 16000 -c:a pcm_s16le "${NOME}_parte_%03d.wav"
+NOME="ID54"; ffmpeg -i "$NOME.mp3" -f segment -segment_time 02:00:00 -ac 1 -ar 16000 -c:a pcm_s16le "${NOME}_parte_%03d.wav"
 ```
 
 **No Powershell:**
@@ -53,7 +53,7 @@ cd "<CAMINHO_DA_PASTA_DO_ARQUIVO>"
 $nome = "<NOME_DO_ARQUIVO>"; ffmpeg -i "$nome.mp3" -f segment -segment_time 02:30:00 -ac 1 -ar 16000 -c:a pcm_s16le "$($nome)_parte_%03d.wav"
 ```
 
-Note que com arquivos divididos em partes será necessário ajustar a montagem da variável ARQUIVO_ENTRADA de acordo no Bloco 3.
+Os arquivos divididos em partes (IDxx_parte_000.wav, IDxx_parte_001.wav, ...) são detectados automaticamente no Bloco 4: cada parte é transcrita (as que já têm transcrição são puladas) e os textos são consolidados em IDxx_transcricao_final.txt.
 
 ## Execução no Google Colab
 Para rodar os notebooks, siga estas configurações críticas para garantir o uso da GPU e evitar erros de memória.
@@ -72,5 +72,6 @@ O processo de instalação de dependências exige um reinício do ambiente para 
 
 ## Estrutura de Arquivos Gerados
 * IDxxw.wav: Áudio convertido (Entrada).
+* IDxx_transcricao_final_parte_NNN.txt: Transcrição de cada parte (mantida após a consolidação)
 * IDxx_transcricao_final.txt: Texto bruto gerado pelo Whisper.
 * IDxx_cronica.md: Texto narrativo final gerado pelo Gemini.
