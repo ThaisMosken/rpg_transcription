@@ -16,7 +16,7 @@ def preload_cuda_libraries():
         import nvidia.cublas.lib as cublas_lib
         import nvidia.cudnn.lib as cudnn_lib
     except ImportError:
-                print(
+        print(
             "⚠️ Pacotes nvidia-cublas-cu12 / nvidia-cudnn-cu12 não encontrados. "
             "Rode o Bloco 1 (instalação). Seguindo sem pré-carregar as bibliotecas CUDA 12."
         )
