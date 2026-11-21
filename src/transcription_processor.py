@@ -173,6 +173,6 @@ def transcribe_session(
     for part_txt in part_txt_files:
         print(f"  {os.path.basename(part_txt)}: {_count_lines(part_txt)} linhas")
     print(f"  {os.path.basename(output_file)}: {_count_lines(output_file)} linhas (final)")
-    print("✅ Transcrição consolidada. Pode seguir para o Bloco 5.")
+    print("✅ Transcrição consolidada. Pode seguir para o Bloco 4.")
 
     return output_file

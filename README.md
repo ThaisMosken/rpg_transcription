@@ -1,6 +1,6 @@
 # RPG Transcription & Chronicle Generator
 
-Este projeto automatiza a transcrição de sessões de RPG utilizando **WhisperX** para conversão de áudio em texto e **Gemini API** para a criação de crônicas narrativas épicas.
+Este projeto automatiza a transcrição de sessões de RPG utilizando **faster-whisper** para conversão de áudio em texto e **Gemini API** para a criação de crônicas narrativas épicas.
 
 ---
 
@@ -53,7 +53,7 @@ cd "<CAMINHO_DA_PASTA_DO_ARQUIVO>"
 $nome = "<NOME_DO_ARQUIVO>"; ffmpeg -i "$nome.mp3" -f segment -segment_time 02:30:00 -ac 1 -ar 16000 -c:a pcm_s16le "$($nome)_parte_%03d.wav"
 ```
 
-Os arquivos divididos em partes (IDxx_parte_000.wav, IDxx_parte_001.wav, ...) são detectados automaticamente no Bloco 4: cada parte é transcrita (as que já têm transcrição são puladas) e os textos são consolidados em IDxx_transcricao_final.txt.
+Os arquivos divididos em partes (IDxx_parte_000.wav, IDxx_parte_001.wav, ...) são detectados automaticamente no Bloco 3: cada parte é transcrita (as que já têm transcrição são puladas) e os textos são consolidados em IDxx_transcricao_final.txt.
 
 ## Execução no Google Colab
 Para rodar os notebooks, siga estas configurações críticas para garantir o uso da GPU e evitar erros de memória.
@@ -63,12 +63,11 @@ Ativar GPU: Vá no menu Runtime (Ambiente de execução) > Change runtime type (
 
 ### 2. Limpeza de Cache: Se encontrar erros estranhos de biblioteca, use Runtime > Disconnect and delete runtime para limpar a máquina virtual e começar do zero.
 
-### 3. Fluxo de Execução Crítico
-O processo de instalação de dependências exige um reinício do ambiente para que as versões das bibliotecas (como o Numpy) sejam aplicadas corretamente.
+### 3. Fluxo de Execução
+Execute o Bloco 1 (instalação) uma vez por runtime e siga direto para o Bloco 2. Não é necessário reiniciar a sessão.
 
-> [!CAUTION]
-> AÇÃO CRÍTICA: Após a execução dos Blocos 1 e 2 (Instalações Iniciais), você deve clicar no botão "RESTART SESSION" que aparecerá no log ou ir em Runtime > Restart session.
-> Não execute esses blocos novamente após o reset. Siga diretamente para o Bloco 3.
+> [!NOTE]
+> Não instale numpy, torch nem WhisperX manualmente: o Colab já traz o que é preciso, e esses pacotes entram em conflito. O pacote `av` tem teto de versão (`av<19`) por incompatibilidade com o faster-whisper 1.2.1; veja o comentário no Bloco 1.
 
 ## Publicação em lote no Notion (backlog)
 Para publicar no Notion as crônicas de sessões antigas, use `notebooks/backlog_notion.ipynb`.
