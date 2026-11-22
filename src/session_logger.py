@@ -256,14 +256,17 @@ def generate_gemini_log(
     chronicle_path,
     output_path,
     context_glossary,
-    table_id,
     session_id,
     session_date,
     template="template_log_v1",
-    model=None,
-    batch_size=20
+    model=None
 ):
-    """Fluxo unitário (Bloco 6): gera o log da sessão atual e atualiza os consolidados."""
+    """
+    Fluxo unitário (Bloco 6): gera o log da sessão atual em output_path (workbench).
+
+    A consolidação dos logs NÃO é feita aqui: ela é refeita pelo bloco 'Arquivar sessão'
+    (src/session_archiver.py), depois que o log já está em archive/logs/<MESA>/.
+    """
     try:
         gemini_cfg = _load_gemini_config()
         base_prompt = _load_prompt_template(template)
@@ -284,24 +287,18 @@ def generate_gemini_log(
         print(f"❌ Falha ao gerar log de {session_id}: {e}")
         return
 
-    logs_folder = os.path.dirname(output_path)
-    os.makedirs(logs_folder, exist_ok=True)
+    os.makedirs(os.path.dirname(output_path), exist_ok=True)
 
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(log_md)
 
-    print(f"✅ SUCESSO! Log individual salvo em: {output_path}")
-
-    consolidate_session_logs(
-        logs_folder=logs_folder,
-        table_id=table_id,
-        batch_size=batch_size
-    )
+    print(f"✅ SUCESSO! Log salvo em: {output_path}")
 
 
 def process_backlog_logs(
     api_key,
-    archive_folder,
+    chronicles_folder,
+    transcriptions_folder,
     logs_folder,
     context_glossary,
     table_id,
@@ -315,12 +312,15 @@ def process_backlog_logs(
     overwrite=False
 ):
     """
-    Processa em lote (backlog) as sessões antigas de `archive_folder`,
-    recuperando datas do Notion, respeitando limites de RPM/RPD e consolidando ao final.
+    Processa em lote (backlog) as sessões antigas já arquivadas, lendo as crônicas de
+    `chronicles_folder` e as transcrições de `transcriptions_folder`, e gravando os logs
+    direto em `logs_folder` (archive/logs/<MESA>/), sem passar pelo workbench.
+    Recupera datas do Notion, respeita limites de RPM/RPD e consolida ao final.
     """
-    if not os.path.exists(archive_folder):
-        print(f"❌ Pasta de arquivo não encontrada: {archive_folder}")
-        return
+    for folder, label in ((chronicles_folder, "crônicas"), (transcriptions_folder, "transcrições")):
+        if not os.path.exists(folder):
+            print(f"❌ Pasta de {label} não encontrada: {folder}")
+            return
 
     os.makedirs(logs_folder, exist_ok=True)
 
@@ -328,15 +328,15 @@ def process_backlog_logs(
     chronicle_pattern = re.compile(rf"^({re.escape(table_id)}(\d+))_cronica\.md$")
     paired_sessions = []
 
-    for filename in os.listdir(archive_folder):
+    for filename in os.listdir(chronicles_folder):
         match = chronicle_pattern.match(filename)
         if not match:
             continue
 
         session_id = match.group(1)       # Ex.: DIA001 ou DIA01
         session_num = int(match.group(2)) # Ex.: 1
-        chronicle_path = os.path.join(archive_folder, filename)
-        transcription_path = os.path.join(archive_folder, f"{session_id}_transcricao_final.txt")
+        chronicle_path = os.path.join(chronicles_folder, filename)
+        transcription_path = os.path.join(transcriptions_folder, f"{session_id}_transcricao_final.txt")
 
         if not os.path.exists(transcription_path):
             print(f"⚠️ Pulando {session_id}: crônica encontrada, mas falta '{session_id}_transcricao_final.txt'.")
