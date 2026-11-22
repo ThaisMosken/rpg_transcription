@@ -15,9 +15,13 @@ __pycache__/
 *.txt
 *.md
 !README.md
+!README.en.md
 !requirements.txt
 !prompts/*.md
 !lore/*.md
+
+# Configuração com identificadores privados (ids de databases do Notion)
+notion_config.json
 
 # C extensions
 *.so
