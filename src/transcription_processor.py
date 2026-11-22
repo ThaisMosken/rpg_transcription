@@ -13,6 +13,10 @@ preload_cuda_libraries()
 from faster_whisper import WhisperModel  # noqa: E402
 import ctranslate2  # noqa: E402
 
+# Duração máxima recomendada (em minutos) para um único arquivo de áudio no Colab gratuito.
+# Acima disso, o áudio deve ser dividido em partes (veja a preparação do áudio no README).
+MAX_RECOMMENDED_AUDIO_MINUTES = 120
+
 
 def execute_transcription(input_file, output_file, glossary_names, model_precision="float16", model_name="large-v2"):
     """
@@ -33,8 +37,12 @@ def execute_transcription(input_file, output_file, glossary_names, model_precisi
     duration_sec = int(audio_info.duration % 60)
     print(f"🎙️ Duração do áudio: {duration_min}min {duration_sec}s")
 
-    if duration_min > 190:
-        print(f"⚠️ Atenção: o áudio tem mais de 190 minutos. Pode ser necessário dividi-lo em múltiplas partes para evitar erros na transcrição")
+    if duration_min > MAX_RECOMMENDED_AUDIO_MINUTES:
+        print(
+            f"⚠️ Atenção: o áudio tem mais de {MAX_RECOMMENDED_AUDIO_MINUTES} minutos. "
+            f"Divida-o em partes de {MAX_RECOMMENDED_AUDIO_MINUTES} minutos para evitar erros na transcrição "
+            f"(veja a seção de preparação do áudio no README)."
+        )
 
     model = WhisperModel(model_name, device="cuda", compute_type=model_precision)
 
