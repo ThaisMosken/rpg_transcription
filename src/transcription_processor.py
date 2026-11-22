@@ -11,13 +11,21 @@ from utils.cuda_preloader import preload_cuda_libraries
 preload_cuda_libraries()
 
 from faster_whisper import WhisperModel  # noqa: E402
+import ctranslate2  # noqa: E402
 
-def execute_transcription(input_file, output_file, glossary_names, device="cuda", model_precision="float16", model_name="large-v2"):
+
+def execute_transcription(input_file, output_file, glossary_names, model_precision="float16", model_name="large-v2"):
     """
-    Realiza a transcrição de um áudio utilizando Faster-Whisper.
+    Realiza a transcrição de um áudio utilizando Faster-Whisper (somente GPU/CUDA).
     """
-    
-    print(f"📦 Carregando modelo: {model_name} em {device} ({model_precision}).")
+
+    if ctranslate2.get_cuda_device_count() == 0:
+        raise RuntimeError(
+            "Nenhuma GPU CUDA detectada. A transcrição exige GPU. "
+            "No Colab, ative em Runtime > Change runtime type > T4 GPU e execute os blocos novamente."
+        )
+
+    print(f"📦 Carregando modelo: {model_name} em cuda ({model_precision}).")
 
     # Duração do arquivo
     audio_info = sf.info(input_file)
@@ -28,10 +36,7 @@ def execute_transcription(input_file, output_file, glossary_names, device="cuda"
     if duration_min > 190:
         print(f"⚠️ Atenção: o áudio tem mais de 190 minutos. Pode ser necessário dividi-lo em múltiplas partes para evitar erros na transcrição")
 
-    # Configuração do modelo baseada no device
-    compute_type = model_precision if device == "cuda" else "int8"
-    
-    model = WhisperModel(model_name, device=device, compute_type=model_precision)
+    model = WhisperModel(model_name, device="cuda", compute_type=model_precision)
 
     # Preparação do prompt
     prompt_string = ", ".join(glossary_names)
@@ -85,7 +90,7 @@ def _count_lines(path):
         return sum(1 for _ in f)
 
 
-def _transcribe_to_file_safely(wav_path, txt_path, glossary_names, device, model_precision, model_name):
+def _transcribe_to_file_safely(wav_path, txt_path, glossary_names, model_precision, model_name):
     """
     Transcreve para um arquivo temporário e só renomeia ao terminar sem erro,
     para uma queda do Colab não deixar um .txt truncado que pareça completo.
@@ -95,7 +100,6 @@ def _transcribe_to_file_safely(wav_path, txt_path, glossary_names, device, model
         input_file=wav_path,
         output_file=tmp_txt,
         glossary_names=glossary_names,
-        device=device,
         model_precision=model_precision,
         model_name=model_name
     )
@@ -108,7 +112,6 @@ def transcribe_session(
     input_file,
     output_file,
     glossary_names,
-    device="cuda",
     model_precision="float16",
     model_name="large-v2"
 ):
@@ -130,7 +133,7 @@ def transcribe_session(
     if not wav_parts:
         print(f"ℹ️ Nenhuma parte encontrada. Transcrevendo arquivo único: {input_file}")
         _transcribe_to_file_safely(
-            input_file, output_file, glossary_names, device, model_precision, model_name
+            input_file, output_file, glossary_names, model_precision, model_name
         )
         return output_file
 
@@ -153,7 +156,7 @@ def transcribe_session(
 
         print(f"\n[{idx}/{len(wav_parts)}] 🎙️ Transcrevendo parte {label}...")
         _transcribe_to_file_safely(
-            wav_path, part_txt, glossary_names, device, model_precision, model_name
+            wav_path, part_txt, glossary_names, model_precision, model_name
         )
         transcribed += 1
         _free_gpu_memory_and_report()

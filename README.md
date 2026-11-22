@@ -59,7 +59,7 @@ Os arquivos divididos em partes (IDxx_parte_000.wav, IDxx_parte_001.wav, ...) s�
 Para rodar os notebooks, siga estas configurações críticas para garantir o uso da GPU e evitar erros de memória.
 
 ### 1. Configuração do Ambiente
-Ativar GPU: Vá no menu Runtime (Ambiente de execução) > Change runtime type (Alterar tipo de ambiente de execução) e selecione T4 GPU.
+Ativar GPU (obrigatório): Vá no menu Runtime (Ambiente de execução) > Change runtime type (Alterar tipo de ambiente de execução) e selecione T4 GPU. A transcrição roda apenas em GPU (CUDA); não há suporte a CPU, e o código interrompe com uma mensagem de erro se nenhuma GPU for detectada.
 
 ### 2. Limpeza de Cache: Se encontrar erros estranhos de biblioteca, use Runtime > Disconnect and delete runtime para limpar a máquina virtual e começar do zero.
 
