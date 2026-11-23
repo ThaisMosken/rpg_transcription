@@ -26,7 +26,7 @@ flowchart TD
 
 | Notebook | Para que serve |
 |---|---|
-| `notebooks/transcritor_rpg.ipynb` | Pipeline completo de **uma sessão**, bloco a bloco (Blocos 1 a 7). |
+| `notebooks/session_pipeline.ipynb` | Pipeline completo de **uma sessão**, bloco a bloco (Blocos 1 a 7). |
 | `notebooks/backlog_notion.ipynb` | Publica no Notion, **em lote**, as crônicas de sessões antigas. |
 | `notebooks/backlog_logs.ipynb` | Gera os logs, **em lote**, das sessões antigas que já têm crônica e transcrição. |
 
@@ -59,7 +59,7 @@ rpg-transcription/
     └── transcriptions/<MESA>/    transcrições finais arquivadas
 ```
 
-A pasta `workbench/` é a única em que o pipeline escreve durante o processamento. Tudo o que está nela é descartável depois de arquivar; por isso os arquivos de configuração e o arquivo morto ficam em pastas separadas.
+No fluxo de uma sessão, a pasta `workbench/` é a única em que o pipeline escreve durante o processamento (o notebook `backlog_logs` é a exceção: grava direto em `archive/logs/<MESA>/`). Tudo o que está em `workbench/` é descartável depois de arquivar; por isso os arquivos de configuração e o arquivo morto ficam em pastas separadas.
 
 > `<MESA>` é a **sigla da mesa** (por exemplo, `ABC`). As siglas diferenciam maiúsculas de minúsculas: `ABC` e `Abc` são mesas diferentes e geram pastas diferentes.
 
@@ -117,9 +117,9 @@ Como cada campo funciona:
 > A busca do glossário converte a sigla para minúsculas, mas as pastas e o `notion_config.json` não. Se digitar `Abc` em vez de `ABC`, o glossário ainda é encontrado e uma pasta nova é criada. Por isso o Bloco 7 avisa quando uma pasta de mesa é criada.
 
 ### 6. Configuração dos modelos e dos prompts
-- `config/gemini_config.json` (no repositório) define a fila de modelos, o limite de tokens de saída, os códigos de erro que acionam o próximo modelo da fila (fallback) e os parâmetros de amostragem. Para testar um modelo específico, use `MODEL_OVERRIDE` (na área editável do Bloco 2 do `transcritor_rpg.ipynb` e na célula inicial do `backlog_logs.ipynb`); deixe como `None` para usar a fila padrão.
+- `config/gemini_config.json` (no repositório) define a fila de modelos, o limite de tokens de saída, os códigos de erro que acionam o próximo modelo da fila (fallback) e os parâmetros de amostragem. Para testar um modelo específico, use `MODEL_OVERRIDE` (na área editável do Bloco 2 do `session_pipeline.ipynb` e na célula inicial do `backlog_logs.ipynb`); deixe como `None` para usar a fila padrão.
 - Os **prompts** (`prompts/`) e os **glossários** (`lore/`) são baixados da branch `main` no GitHub a cada execução: alterações só valem depois do push.
-- Quem usar um fork precisa trocar o endereço do repositório nestes pontos: `BASE_URL` em `utils/glossary_manager.py` e a URL do prompt em `src/chronicler.py` e `src/session_logger.py`.
+- Quem usar um fork precisa trocar o endereço do repositório nestes pontos: `BASE_URL` em `utils/glossary_manager.py`; a URL do prompt em `src/chronicler.py` e `src/session_logger.py`; e o `git clone` no Bloco 2 do `session_pipeline.ipynb`, no Bloco 2 do `backlog_notion.ipynb` e na célula inicial do `backlog_logs.ipynb`.
 
 ---
 
@@ -178,7 +178,7 @@ Copie o `.wav` (ou as partes) para `rpg-transcription/workbench/`.
 
 ---
 
-## Uso: uma sessão (`transcritor_rpg.ipynb`)
+## Uso: uma sessão (`session_pipeline.ipynb`)
 
 Antes de começar, ative a GPU: **Ambiente de execução > Alterar tipo de ambiente de execução > T4 GPU**. A transcrição roda apenas em GPU; sem ela, o código para com uma mensagem de erro.
 
@@ -187,7 +187,7 @@ Antes de começar, ative a GPU: **Ambiente de execução > Alterar tipo de ambie
 | 1 | Instala as dependências. Rode uma vez por runtime; não é preciso reiniciar a sessão. | Nada. |
 | 2 | Monta o Drive, lê o secret `GEMINI_API_KEY`, clona o repositório e carrega o glossário e os caminhos da sessão. | `ID_MESA`, `SESSION_NUMBER` (ex.: `"001"`), `SESSION_DATE` (`AAAA-MM-DD`), `FORCE_UPDATE` (`True` para puxar mudanças do repositório), `MODEL_OVERRIDE` (`None` usa a fila padrão; vale para os Blocos 4 e 6). |
 | 3 | Transcreve o áudio (arquivo único ou partes). | Opcionalmente, `model_precision` e `model_name`. |
-| 4 | Gera a crônica com o Gemini. | `TEMPLATE`: `template_cronica_v1` para sessões normais, `template_sessao0_v1` para a Sessão 0. |
+| 4 | Gera a crônica com o Gemini. | `TEMPLATE`: `template_chronicle_v1` para sessões normais, `template_session0_v1` para a Sessão 0. |
 | 5 | Publica a crônica no Notion, criando também as páginas de NPCs. **Pule se a mesa não usa o Notion.** | Nada. |
 | 6 | Gera o log factual da sessão em `workbench/`, a partir da transcrição, da crônica revisada e do glossário. Usa `SESSION_DATE` como data da sessão. | Nada. |
 | 7 | Arquiva a sessão e atualiza os logs consolidados (veja abaixo). | Nada. |
@@ -246,7 +246,7 @@ Os logs consolidados reúnem 20 sessões por arquivo (Parte 1: sessões 1 a 20; 
 rpg_transcription/
 ├── config/        gemini_config.json (fila de modelos, limites e fallback)
 ├── lore/          glossary.md (geral) e glossary_<sigla>.md (por mesa)
-├── notebooks/     transcritor_rpg, backlog_notion, backlog_logs
+├── notebooks/     session_pipeline, backlog_notion, backlog_logs
 ├── prompts/       templates de prompt da crônica, da Sessão 0 e do log
 ├── src/           transcrição, crônica, log, arquivamento e publicação em lote
 ├── utils/         glossário, caminhos da sessão, Notion e bibliotecas CUDA
