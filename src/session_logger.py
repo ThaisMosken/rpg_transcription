@@ -202,13 +202,13 @@ def _generate_log_markdown(
 
     default_models = gemini_cfg.get("default_models", [])
     if model is None:
-        modelos_prioridade = list(default_models)
+        model_priority_queue = list(default_models)
     elif isinstance(model, list):
-        modelos_prioridade = list(model)
+        model_priority_queue = list(model)
     else:
-        modelos_prioridade = [model] + [m for m in default_models if m != model]
+        model_priority_queue = [model] + [m for m in default_models if m != model]
 
-    if not modelos_prioridade:
+    if not model_priority_queue:
         raise ValueError("Nenhum modelo configurado em 'default_models' ou informado via parâmetro.")
 
     max_tokens = gemini_cfg.get("max_output_tokens", 16384)
@@ -218,8 +218,8 @@ def _generate_log_markdown(
 
     response = None
 
-    for modelo_atual in modelos_prioridade:
-        if modelo_atual.startswith(no_sampling_prefixes):
+    for current_model in model_priority_queue:
+        if current_model.startswith(no_sampling_prefixes):
             generation_config = types.GenerateContentConfig(
                 max_output_tokens=max_tokens
             )
@@ -230,17 +230,17 @@ def _generate_log_markdown(
             )
 
         try:
-            print(f"  🤖 Gerando {session_id} com {modelo_atual}...")
+            print(f"  🤖 Gerando {session_id} com {current_model}...")
             response = client.models.generate_content(
-                model=modelo_atual,
+                model=current_model,
                 contents=full_prompt,
                 config=generation_config
             )
             break
 
         except APIError as e:
-            if e.code in fallback_codes and modelo_atual != modelos_prioridade[-1]:
-                print(f"  ⚠️ Cota excedida no {modelo_atual} (Erro {e.code}). Tentando fallback...")
+            if e.code in fallback_codes and current_model != model_priority_queue[-1]:
+                print(f"  ⚠️ Cota excedida no {current_model} (Erro {e.code}). Tentando fallback...")
                 continue
             raise RuntimeError(f"ERRO DE API ({e.code}): {e.message}")
 

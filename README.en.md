@@ -70,7 +70,7 @@ In Colab, open the **Secrets** panel (key icon) and add the following, enabling 
 
 | Secret | Use |
 |---|---|
-| `GEMINI_API_KEY` | Required. Chronicle and log generation. |
+| `GEMINI_API_KEY` | Required. Chronicle and log generation. Read in Block 2 and used by Blocks 4 and 6. |
 | `NOTION_TOKEN` | Only if you publish to Notion. |
 
 ### 4. Notion integration (optional)
@@ -119,7 +119,7 @@ How each field works:
 > The glossary lookup lowercases the table code, but the folders and `notion_config.json` do not. If you type `Abc` instead of `ABC`, the glossary is still found and a new folder is created. That is why Block 7 warns whenever a table folder is created.
 
 ### 6. Model and prompt configuration
-- `config/gemini_config.json` (in the repository) defines the model queue, the output token limit, the error codes that trigger the next model in the queue (fallback) and the sampling parameters. To test a specific model, use `MODELO_ESCOLHIDO` in the notebooks.
+- `config/gemini_config.json` (in the repository) defines the model queue, the output token limit, the error codes that trigger the next model in the queue (fallback) and the sampling parameters. To test a specific model, use `MODEL_OVERRIDE` (in the editable area of Block 2 in `transcritor_rpg.ipynb` and in the first cell of `backlog_logs.ipynb`); leave it as `None` to use the default queue.
 - The **prompts** (`prompts/`) and **glossaries** (`lore/`) are downloaded from the `main` branch on GitHub on every run: changes only take effect after you push.
 - If you use a fork, you must change the repository address in these places: `BASE_URL` in `utils/glossary_manager.py`, and the prompt URL in `src/chronicler.py` and `src/session_logger.py`.
 
@@ -187,7 +187,7 @@ Before starting, enable the GPU: **Runtime > Change runtime type > T4 GPU**. Tra
 | Block | What it does | What you edit |
 |---|---|---|
 | 1 | Installs the dependencies. Run once per runtime; no session restart is needed. | Nothing. |
-| 2 | Mounts Drive, clones the repository and loads the glossary and the session paths. | `ID_MESA`, `SESSION_NUMBER` (e.g. `"001"`), `SESSION_DATE` (`YYYY-MM-DD`), `FORCE_UPDATE` (`True` to pull repository changes). |
+| 2 | Mounts Drive, reads the `GEMINI_API_KEY` secret, clones the repository and loads the glossary and the session paths. | `ID_MESA`, `SESSION_NUMBER` (e.g. `"001"`), `SESSION_DATE` (`YYYY-MM-DD`), `FORCE_UPDATE` (`True` to pull repository changes), `MODEL_OVERRIDE` (`None` uses the default queue; applies to Blocks 4 and 6). |
 | 3 | Transcribes the audio (single file or parts). | Optionally `model_precision` and `model_name`. |
 | 4 | Generates the chronicle with Gemini. | `TEMPLATE`: `template_cronica_v1` for regular sessions, `template_sessao0_v1` for Session 0. |
 | 5 | Publishes the chronicle to Notion, also creating the NPC pages. **Skip it if the table does not use Notion.** | Nothing. |
@@ -203,12 +203,7 @@ Before starting, enable the GPU: **Runtime > Change runtime type > T4 GPU**. Tra
 **Cautions when re-running blocks**
 - Blocks 3, 4 and 6 **overwrite** their output without asking. Running Block 4 again erases the chronicle you reviewed. Block 3 resumes per part: parts that were already transcribed are skipped.
 - Block 5 does not check whether the session already exists in Notion: running it twice creates a duplicate page.
-- Block 6 uses the variables `CHAVE_GEMINI` and `MODELO_ESCOLHIDO`, which are defined in Block 4's cell. If the runtime restarts after your review, run Blocks 1 and 2 and, **instead of running Block 4**, run only these lines before Block 6:
-  ```python
-  from google.colab import userdata
-  CHAVE_GEMINI = userdata.get('GEMINI_API_KEY')
-  MODELO_ESCOLHIDO = None
-  ```
+- Blocks 4 and 6 do not depend on each other: both use `GEMINI_API_KEY` and `MODEL_OVERRIDE`, defined in Block 2. If the runtime restarts after you review the chronicle, run Blocks 1 and 2 and go straight to Block 6, **without running Block 4**, which would overwrite the reviewed chronicle.
 - After Block 7, the session's files leave `workbench/`. To reprocess an already archived session, move the files back to `workbench/` and resolve any conflicts before archiving again.
 
 ---
@@ -280,6 +275,7 @@ The messages below are printed by the code in Portuguese; the English gloss is i
 | Warning that `nvidia-cublas-cu12` / `nvidia-cudnn-cu12` packages were not found | Run Block 1 (installation) before Block 3. |
 | Colab crashes or fails on a long audio file | Split the audio into 120-minute parts. When you run Block 3 again, parts that were already transcribed are skipped. |
 | "Cota excedida ... Tentando fallback" (quota exceeded, trying fallback; error 429 or 503) | Expected on the Free Tier: the code moves to the next model in the queue. If all fail, wait (it may be the daily limit) and run again; the backlog resumes where it stopped. |
+| "Secret 'GEMINI_API_KEY' não encontrado" (secret not found) | Add the secret in Colab's Secrets panel, enable notebook access and run Block 2 again. |
 | "Erro ao baixar o prompt" (error downloading the prompt) | The template name does not exist on the `main` branch, or GitHub is unavailable. |
 | "Mesa '...' não encontrada" (table not found) | The code differs from the one in `notion_config.json` (case matters), or the table does not use Notion; in that case, skip Block 5. |
 | An unexpected "Pasta NOVA criada" (new folder created) warning | The table code was typed differently from before. Move the files and fix `ID_MESA`. |

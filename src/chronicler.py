@@ -73,13 +73,13 @@ def generate_gemini_chronicle(
     # 6. Resolver fila de modelos (padrão do JSON ou override informado)
     default_models = gemini_cfg.get("default_models", [])
     if model is None:
-        modelos_prioridade = list(default_models)
+        model_priority_queue = list(default_models)
     elif isinstance(model, list):
-        modelos_prioridade = list(model)
+        model_priority_queue = list(model)
     else:
-        modelos_prioridade = [model] + [m for m in default_models if m != model]
+        model_priority_queue = [model] + [m for m in default_models if m != model]
 
-    if not modelos_prioridade:
+    if not model_priority_queue:
         print("ERRO: Nenhum modelo configurado em 'default_models' ou informado via parâmetro.")
         return
 
@@ -91,8 +91,8 @@ def generate_gemini_chronicle(
     response = None
 
     # 7. Chamada à API com fallback automático
-    for modelo_atual in modelos_prioridade:
-        if modelo_atual.startswith(no_sampling_prefixes):
+    for current_model in model_priority_queue:
+        if current_model.startswith(no_sampling_prefixes):
             generation_config = types.GenerateContentConfig(
                 max_output_tokens=max_tokens
             )
@@ -103,17 +103,17 @@ def generate_gemini_chronicle(
             )
 
         try:
-            print(f"\nEnviando solicitação ao modelo {modelo_atual} (Isso pode levar alguns segundos)...")
+            print(f"\nEnviando solicitação ao modelo {current_model} (Isso pode levar alguns segundos)...")
             response = client.models.generate_content(
-                model=modelo_atual,
+                model=current_model,
                 contents=full_prompt,
                 config=generation_config
             )
             break
 
         except APIError as e:
-            if e.code in fallback_codes and modelo_atual != modelos_prioridade[-1]:
-                print(f"⚠️ Cota excedida no {modelo_atual} (Erro {e.code}). Tentando fallback...")
+            if e.code in fallback_codes and current_model != model_priority_queue[-1]:
+                print(f"⚠️ Cota excedida no {current_model} (Erro {e.code}). Tentando fallback...")
                 continue
             print(f"ERRO DE API ({e.code}): {e.message}")
             return

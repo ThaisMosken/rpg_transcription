@@ -68,7 +68,7 @@ No Colab, abra o painel de **Secrets** (ícone de chave) e cadastre, liberando o
 
 | Secret | Uso |
 |---|---|
-| `GEMINI_API_KEY` | Obrigatório. Geração de crônicas e logs. |
+| `GEMINI_API_KEY` | Obrigatório. Geração de crônicas e logs. Lido no Bloco 2 e usado pelos Blocos 4 e 6. |
 | `NOTION_TOKEN` | Só se for publicar no Notion. |
 
 ### 4. Integração com o Notion (opcional)
@@ -117,7 +117,7 @@ Como cada campo funciona:
 > A busca do glossário converte a sigla para minúsculas, mas as pastas e o `notion_config.json` não. Se digitar `Abc` em vez de `ABC`, o glossário ainda é encontrado e uma pasta nova é criada. Por isso o Bloco 7 avisa quando uma pasta de mesa é criada.
 
 ### 6. Configuração dos modelos e dos prompts
-- `config/gemini_config.json` (no repositório) define a fila de modelos, o limite de tokens de saída, os códigos de erro que acionam o próximo modelo da fila (fallback) e os parâmetros de amostragem. Para testar um modelo específico, use `MODELO_ESCOLHIDO` nos notebooks.
+- `config/gemini_config.json` (no repositório) define a fila de modelos, o limite de tokens de saída, os códigos de erro que acionam o próximo modelo da fila (fallback) e os parâmetros de amostragem. Para testar um modelo específico, use `MODEL_OVERRIDE` (na área editável do Bloco 2 do `transcritor_rpg.ipynb` e na célula inicial do `backlog_logs.ipynb`); deixe como `None` para usar a fila padrão.
 - Os **prompts** (`prompts/`) e os **glossários** (`lore/`) são baixados da branch `main` no GitHub a cada execução: alterações só valem depois do push.
 - Quem usar um fork precisa trocar o endereço do repositório nestes pontos: `BASE_URL` em `utils/glossary_manager.py` e a URL do prompt em `src/chronicler.py` e `src/session_logger.py`.
 
@@ -185,7 +185,7 @@ Antes de começar, ative a GPU: **Ambiente de execução > Alterar tipo de ambie
 | Bloco | O que faz | O que você edita |
 |---|---|---|
 | 1 | Instala as dependências. Rode uma vez por runtime; não é preciso reiniciar a sessão. | Nada. |
-| 2 | Monta o Drive, clona o repositório e carrega o glossário e os caminhos da sessão. | `ID_MESA`, `SESSION_NUMBER` (ex.: `"001"`), `SESSION_DATE` (`AAAA-MM-DD`), `FORCE_UPDATE` (`True` para puxar mudanças do repositório). |
+| 2 | Monta o Drive, lê o secret `GEMINI_API_KEY`, clona o repositório e carrega o glossário e os caminhos da sessão. | `ID_MESA`, `SESSION_NUMBER` (ex.: `"001"`), `SESSION_DATE` (`AAAA-MM-DD`), `FORCE_UPDATE` (`True` para puxar mudanças do repositório), `MODEL_OVERRIDE` (`None` usa a fila padrão; vale para os Blocos 4 e 6). |
 | 3 | Transcreve o áudio (arquivo único ou partes). | Opcionalmente, `model_precision` e `model_name`. |
 | 4 | Gera a crônica com o Gemini. | `TEMPLATE`: `template_cronica_v1` para sessões normais, `template_sessao0_v1` para a Sessão 0. |
 | 5 | Publica a crônica no Notion, criando também as páginas de NPCs. **Pule se a mesa não usa o Notion.** | Nada. |
@@ -201,12 +201,7 @@ Antes de começar, ative a GPU: **Ambiente de execução > Alterar tipo de ambie
 **Cuidados ao reexecutar blocos**
 - Os Blocos 3, 4 e 6 **sobrescrevem** a saída sem perguntar. Rodar o Bloco 4 de novo apaga a crônica que você revisou. O Bloco 3 retoma por parte: as partes já transcritas são puladas.
 - O Bloco 5 não verifica se a sessão já existe no Notion: rodá-lo duas vezes cria uma página duplicada.
-- O Bloco 6 usa as variáveis `CHAVE_GEMINI` e `MODELO_ESCOLHIDO`, que são definidas na célula do Bloco 4. Se o runtime reiniciar depois da revisão, rode os Blocos 1 e 2 e, **em vez de rodar o Bloco 4**, execute só estas linhas antes do Bloco 6:
-  ```python
-  from google.colab import userdata
-  CHAVE_GEMINI = userdata.get('GEMINI_API_KEY')
-  MODELO_ESCOLHIDO = None
-  ```
+- Os Blocos 4 e 6 não dependem um do outro: ambos usam `GEMINI_API_KEY` e `MODEL_OVERRIDE`, definidos no Bloco 2. Se o runtime reiniciar depois da revisão da crônica, rode os Blocos 1 e 2 e vá direto ao Bloco 6, **sem rodar o Bloco 4**, que sobrescreveria a crônica revisada.
 - Depois do Bloco 7, os arquivos da sessão saem de `workbench/`. Para reprocessar uma sessão já arquivada, mova os arquivos de volta para `workbench/` e resolva os conflitos antes de arquivar de novo.
 
 ---
@@ -276,6 +271,7 @@ O `requirements.txt` lista as dependências para quem for rodar fora do Colab. N
 | Aviso de pacotes `nvidia-cublas-cu12` / `nvidia-cudnn-cu12` não encontrados | Rode o Bloco 1 (instalação) antes do Bloco 3. |
 | Colab cai ou falha em um áudio longo | Divida o áudio em partes de 120 minutos. Ao rodar o Bloco 3 de novo, as partes já transcritas são puladas. |
 | "Cota excedida ... Tentando fallback" (erro 429 ou 503) | Esperado no Free Tier: o código passa ao próximo modelo da fila. Se todos falharem, aguarde (pode ser o limite diário) e rode de novo; o backlog retoma de onde parou. |
+| "Secret 'GEMINI_API_KEY' não encontrado" | Cadastre o secret no painel de Secrets do Colab, libere o acesso para o notebook e rode o Bloco 2 de novo. |
 | "Erro ao baixar o prompt" | O nome do template não existe na branch `main`, ou o GitHub está indisponível. |
 | "Mesa '...' não encontrada" | A sigla difere da do `notion_config.json` (maiúsculas contam) ou a mesa não usa o Notion; neste caso, pule o Bloco 5. |
 | Aviso "Pasta NOVA criada" que você não esperava | A sigla foi digitada diferente da usada antes. Mova os arquivos e corrija o `ID_MESA`. |
