@@ -121,6 +121,15 @@ Como cada campo funciona:
 - Os **prompts** (`prompts/`) e os **glossários** (`lore/`) são baixados da branch `main` no GitHub a cada execução: alterações só valem depois do push.
 - Quem usar um fork precisa trocar o endereço do repositório nestes pontos: `BASE_URL` em `utils/glossary_manager.py`; a URL do prompt em `src/chronicler.py` e `src/session_logger.py`; e o `git clone` no Bloco 2 do `session_pipeline.ipynb`, no Bloco 2 do `backlog_notion.ipynb` e na célula inicial do `backlog_logs.ipynb`.
 
+### 7. Dependências com versão fixada
+Algumas dependências têm versão fixada ou não devem ser instaladas à mão. Os motivos, para saber quando mexer:
+
+- **`av<19`** (teto de versão): o PyAV 19 removeu o argumento `metadata_errors` de `av.open()`, que o faster-whisper 1.2.1 ainda passa. Sem o teto, toda transcrição falha com `TypeError`. Remova o teto quando o faster-whisper lançar uma versão compatível com o PyAV 19.
+- **`nvidia-cublas-cu12` e `nvidia-cudnn-cu12==9.*`**: exigidas pelo ctranslate2 (faster-whisper) para rodar na GPU. O pré-carregamento é feito em `utils/cuda_preloader.py`, chamado por `src/transcription_processor.py`.
+- **`numpy`, `torch` e `WhisperX`: não instale manualmente.** O Colab já traz o que é preciso, e esses pacotes quebram o ambiente.
+
+Os mesmos pins estão no `pip install` do Bloco 1 e no `requirements.txt` (neste, com um comentário em cada um). Ao alterar um, altere o outro.
+
 ---
 
 ## Preparação do áudio (FFmpeg)
@@ -278,7 +287,7 @@ O `requirements.txt` lista as dependências para quem for rodar fora do Colab. N
 | "Arquivamento cancelado" no Bloco 7 | Já existe um arquivo com o mesmo nome no destino. Nada foi movido; confira antes de repetir. |
 | Erros estranhos de biblioteca | Use **Ambiente de execução > Desconectar e excluir ambiente de execução** e comece do Bloco 1. |
 
-> Não instale `numpy`, `torch` nem `WhisperX` manualmente: o Colab já traz o que é preciso e esses pacotes entram em conflito. O `av` tem teto de versão (`av<19`) por incompatibilidade com o faster-whisper 1.2.1; o motivo está comentado no Bloco 1.
+> Não instale `numpy`, `torch` nem `WhisperX` manualmente: o Colab já traz o que é preciso e esses pacotes entram em conflito. O motivo do teto de versão do `av` (`av<19`) está em [Dependências com versão fixada](#7-dependências-com-versão-fixada).
 
 ---
 
