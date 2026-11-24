@@ -56,14 +56,14 @@ rpg-transcription/
 ├── config/                       notion_config.json
 ├── workbench/                    working area: audio, transcription, chronicle and log under review
 └── archive/
-    ├── chronicles/<MESA>/        archived chronicles
-    ├── logs/<MESA>/              individual + consolidated logs
-    └── transcriptions/<MESA>/    archived final transcriptions
+    ├── chronicles/<TABLE>/       archived chronicles
+    ├── logs/<TABLE>/             individual + consolidated logs
+    └── transcriptions/<TABLE>/   archived final transcriptions
 ```
 
-In the single-session flow, `workbench/` is the only folder the pipeline writes to while processing (the `backlog_logs` notebook is the exception: it writes straight to `archive/logs/<MESA>/`). Everything in `workbench/` is disposable once archived, which is why the configuration files and the archive live in separate folders.
+In the single-session flow, `workbench/` is the only folder the pipeline writes to while processing (the `backlog_logs` notebook is the exception: it writes straight to `archive/logs/<TABLE>/`). Everything in `workbench/` is disposable once archived, which is why the configuration files and the archive live in separate folders.
 
-> `<MESA>` is the **table code** (the campaign's short identifier, for example `ABC`). Codes are case sensitive: `ABC` and `Abc` are different tables and produce different folders.
+> `<TABLE>` is the **table code** (the campaign's short identifier, for example `ABC`). Codes are case sensitive: `ABC` and `Abc` are different tables and produce different folders.
 
 ### 3. Colab Secrets
 In Colab, open the **Secrets** panel (key icon) and add the following, enabling notebook access:
@@ -107,10 +107,10 @@ How each field works:
 - `DB_SESSAO` and `DB_NPCS`: the table's sessions and NPC databases. They can be **dedicated to one campaign** or **shared by several**.
 - `DB_CAMPAIGN`: the campaign name. It is written to the `Campanha` property of each session and used as a filter in queries (for example, so the backlog notebooks can find which sessions already exist). It is optional for a dedicated database, but **must be set when the database is shared**; without it, sessions from different campaigns get mixed up in the existence check.
 - The NPC database is queried only by the `Nome` property, with no campaign filter. In a shared NPC database, an NPC with the same name in two campaigns points to the same page.
-- The table code must be **identical** to the `ID_MESA` used in the notebooks.
+- The table code must be **identical** to the `TABLE_ID` used in the notebooks.
 
 ### 5. Registering a new table
-1. Pick a code (letters only, case sensitive) and use it as `ID_MESA`.
+1. Pick a code (letters only, case sensitive) and use it as `TABLE_ID`.
 2. Create the table's glossary at `lore/glossary_<code in lowercase>.md` and register it in `TABLE_CONFIG`, in `utils/glossary_manager.py`.
 3. If the table uses Notion, add its entry to `config/notion_config.json`.
 
@@ -127,7 +127,7 @@ How each field works:
 
 ## Audio preparation (FFmpeg)
 
-Whisper works best with 16 kHz mono `.wav` files. Convert the recording before uploading it to Drive. The file name is `<CODE><NUMBER>`, matching the notebook's `ID_MESA` + `SESSION_NUMBER` (for example, `ABC001`). The examples use `.mp3`; adjust the extension as needed.
+Whisper works best with 16 kHz mono `.wav` files. Convert the recording before uploading it to Drive. The file name is `<CODE><NUMBER>`, matching the notebook's `TABLE_ID` + `SESSION_NUMBER` (for example, `ABC001`). The examples use `.mp3`; adjust the extension as needed.
 
 **Audio longer than 120 minutes must be split into 120-minute parts.** The free Colab tier often fails when transcribing very long audio.
 
@@ -187,7 +187,7 @@ Before starting, enable the GPU: **Runtime > Change runtime type > T4 GPU**. Tra
 | Block | What it does | What you edit |
 |---|---|---|
 | 1 | Installs the dependencies. Run once per runtime; no session restart is needed. | Nothing. |
-| 2 | Mounts Drive, reads the `GEMINI_API_KEY` secret, clones the repository and loads the glossary and the session paths. | `ID_MESA`, `SESSION_NUMBER` (e.g. `"001"`), `SESSION_DATE` (`YYYY-MM-DD`), `FORCE_UPDATE` (`True` to pull repository changes), `MODEL_OVERRIDE` (`None` uses the default queue; applies to Blocks 4 and 6). |
+| 2 | Mounts Drive, reads the `GEMINI_API_KEY` secret, clones the repository and loads the glossary and the session paths. | `TABLE_ID`, `SESSION_NUMBER` (e.g. `"001"`), `SESSION_DATE` (`YYYY-MM-DD`), `FORCE_UPDATE` (`True` to pull repository changes), `MODEL_OVERRIDE` (`None` uses the default queue; applies to Blocks 4 and 6). |
 | 3 | Transcribes the audio (single file or parts). | Optionally `model_precision` and `model_name`. |
 | 4 | Generates the chronicle with Gemini. | `TEMPLATE`: `template_chronicle_v1` for regular sessions, `template_session0_v1` for Session 0. |
 | 5 | Publishes the chronicle to Notion, also creating the NPC pages. **Skip it if the table does not use Notion.** | Nothing. |
@@ -212,8 +212,8 @@ Before starting, enable the GPU: **Runtime > Change runtime type > T4 GPU**. Tra
 
 For campaigns that already have chronicles and transcriptions stored in `archive/`:
 
-- **`backlog_notion.ipynb`** reads the chronicles from `archive/chronicles/<MESA>/` and publishes to Notion the ones that are not there yet (sessions already registered are skipped, never overwritten). Every published session gets the `DEFAULT_DATE` date. If the Notion query fails, nothing is published.
-- **`backlog_logs.ipynb`** reads the chronicles and transcriptions from `archive/` and writes the logs directly to `archive/logs/<MESA>/`. With `OVERWRITE_EXISTING = False`, sessions that already have a log are skipped, which acts as a resume point. Dates come from Notion; if the session is not there, the file's date is used. `MAX_SESSIONS_PER_RUN` and `SLEEP_SECONDS` control the pace to respect Free Tier limits. At the end, the consolidated logs are updated.
+- **`backlog_notion.ipynb`** reads the chronicles from `archive/chronicles/<TABLE>/` and publishes to Notion the ones that are not there yet (sessions already registered are skipped, never overwritten). Every published session gets the `DEFAULT_DATE` date. If the Notion query fails, nothing is published.
+- **`backlog_logs.ipynb`** reads the chronicles and transcriptions from `archive/` and writes the logs directly to `archive/logs/<TABLE>/`. With `OVERWRITE_EXISTING = False`, sessions that already have a log are skipped, which acts as a resume point. Dates come from Notion; if the session is not there, the file's date is used. `MAX_SESSIONS_PER_RUN` and `SLEEP_SECONDS` control the pace to respect Free Tier limits. At the end, the consolidated logs are updated.
 
 ### Migrating files from the old structure
 If you already have chronicles and transcriptions loose in the project root or in the `Crônicas e Transcrições` folder, you can move them to the current structure once, with `migrate_legacy_files` (in `src/session_archiver.py`). **Dry run is the default**: it only lists what would be moved, by destination folder, and points out conflicts.
@@ -235,10 +235,10 @@ migrate_legacy_files(PROJECT_FOLDER, dry_run=False)  # actually moves
 |---|---|---|
 | `<ID>w.wav` or `<ID>_parte_NNN.wav` | FFmpeg | `workbench/` (delete manually) |
 | `<ID>_transcricao_final_parte_NNN.txt` | Block 3 (one per part; enables resuming) | `workbench/` |
-| `<ID>_transcricao_final.txt` | Block 3 | `workbench/`, then `archive/transcriptions/<MESA>/` |
-| `<ID>_cronica.md` | Block 4 | `workbench/`, then `archive/chronicles/<MESA>/` |
-| `<ID>_log.md` | Block 6 | `workbench/`, then `archive/logs/<MESA>/` |
-| `<MESA>_Logs_Consolidados_Parte_X.md` | Block 7 and `backlog_logs` | `archive/logs/<MESA>/` |
+| `<ID>_transcricao_final.txt` | Block 3 | `workbench/`, then `archive/transcriptions/<TABLE>/` |
+| `<ID>_cronica.md` | Block 4 | `workbench/`, then `archive/chronicles/<TABLE>/` |
+| `<ID>_log.md` | Block 6 | `workbench/`, then `archive/logs/<TABLE>/` |
+| `<TABLE>_Logs_Consolidados_Parte_X.md` | Block 7 and `backlog_logs` | `archive/logs/<TABLE>/` |
 
 The consolidated logs group 20 sessions per file (Part 1: sessions 1 to 20; Part 2: 21 to 40; and so on), intended to be uploaded as a source to a document-querying tool.
 
@@ -278,7 +278,7 @@ The messages below are printed by the code in Portuguese; the English gloss is i
 | "Secret 'GEMINI_API_KEY' não encontrado" (secret not found) | Add the secret in Colab's Secrets panel, enable notebook access and run Block 2 again. |
 | "Erro ao baixar o prompt" (error downloading the prompt) | The template name does not exist on the `main` branch, or GitHub is unavailable. |
 | "Mesa '...' não encontrada" (table not found) | The code differs from the one in `notion_config.json` (case matters), or the table does not use Notion; in that case, skip Block 5. |
-| An unexpected "Pasta NOVA criada" (new folder created) warning | The table code was typed differently from before. Move the files and fix `ID_MESA`. |
+| An unexpected "Pasta NOVA criada" (new folder created) warning | The table code was typed differently from before. Move the files and fix `TABLE_ID`. |
 | "Arquivamento cancelado" (archiving cancelled) in Block 7 | A file with the same name already exists at the destination. Nothing was moved; check before repeating. |
 | Strange library errors | Use **Runtime > Disconnect and delete runtime** and start again from Block 1. |
 

@@ -54,14 +54,14 @@ rpg-transcription/
 ├── config/                       notion_config.json
 ├── workbench/                    área de trabalho: áudios, transcrição, crônica e log em revisão
 └── archive/
-    ├── chronicles/<MESA>/        crônicas arquivadas
-    ├── logs/<MESA>/              logs individuais + consolidados
-    └── transcriptions/<MESA>/    transcrições finais arquivadas
+    ├── chronicles/<TABLE>/       crônicas arquivadas
+    ├── logs/<TABLE>/             logs individuais + consolidados
+    └── transcriptions/<TABLE>/   transcrições finais arquivadas
 ```
 
-No fluxo de uma sessão, a pasta `workbench/` é a única em que o pipeline escreve durante o processamento (o notebook `backlog_logs` é a exceção: grava direto em `archive/logs/<MESA>/`). Tudo o que está em `workbench/` é descartável depois de arquivar; por isso os arquivos de configuração e o arquivo morto ficam em pastas separadas.
+No fluxo de uma sessão, a pasta `workbench/` é a única em que o pipeline escreve durante o processamento (o notebook `backlog_logs` é a exceção: grava direto em `archive/logs/<TABLE>/`). Tudo o que está em `workbench/` é descartável depois de arquivar; por isso os arquivos de configuração e o arquivo morto ficam em pastas separadas.
 
-> `<MESA>` é a **sigla da mesa** (por exemplo, `ABC`). As siglas diferenciam maiúsculas de minúsculas: `ABC` e `Abc` são mesas diferentes e geram pastas diferentes.
+> `<TABLE>` é a **sigla da mesa** (por exemplo, `ABC`). As siglas diferenciam maiúsculas de minúsculas: `ABC` e `Abc` são mesas diferentes e geram pastas diferentes.
 
 ### 3. Secrets do Colab
 No Colab, abra o painel de **Secrets** (ícone de chave) e cadastre, liberando o acesso para o notebook:
@@ -105,10 +105,10 @@ Como cada campo funciona:
 - `DB_SESSAO` e `DB_NPCS`: databases de sessões e de NPCs da mesa. Podem ser **exclusivos de uma campanha** ou **compartilhados por várias**.
 - `DB_CAMPAIGN`: nome da campanha, gravado na propriedade `Campanha` de cada sessão e usado como filtro nas consultas (por exemplo, para os notebooks de backlog descobrirem quais sessões já existem). É opcional em um database exclusivo, mas **deve ser informado quando o database é compartilhado**; sem ele, as sessões de campanhas diferentes se misturam na verificação.
 - O database de NPCs é consultado só pela propriedade `Nome`, sem filtro de campanha. Em um database de NPCs compartilhado, um NPC com o mesmo nome em duas campanhas aponta para a mesma página.
-- A sigla da mesa precisa ser **igual** à usada em `ID_MESA` nos notebooks.
+- A sigla da mesa precisa ser **igual** à usada em `TABLE_ID` nos notebooks.
 
 ### 5. Cadastrar uma mesa nova
-1. Escolha a sigla (só letras, respeitando maiúsculas) e use-a em `ID_MESA`.
+1. Escolha a sigla (só letras, respeitando maiúsculas) e use-a em `TABLE_ID`.
 2. Crie o glossário da mesa em `lore/glossary_<sigla em minúsculas>.md` e registre-o em `TABLE_CONFIG`, em `utils/glossary_manager.py`.
 3. Se a mesa usa o Notion, adicione a entrada em `config/notion_config.json`.
 
@@ -125,7 +125,7 @@ Como cada campo funciona:
 
 ## Preparação do áudio (FFmpeg)
 
-O Whisper trabalha melhor com `.wav` mono de 16 kHz. Converta a gravação antes de enviá-la ao Drive. O nome do arquivo é `<SIGLA><NÚMERO>`, igual ao `ID_MESA` + `SESSION_NUMBER` do notebook (por exemplo, `ABC001`). Os exemplos usam `.mp3`; ajuste a extensão se necessário.
+O Whisper trabalha melhor com `.wav` mono de 16 kHz. Converta a gravação antes de enviá-la ao Drive. O nome do arquivo é `<SIGLA><NÚMERO>`, igual ao `TABLE_ID` + `SESSION_NUMBER` do notebook (por exemplo, `ABC001`). Os exemplos usam `.mp3`; ajuste a extensão se necessário.
 
 **Áudios acima de 120 minutos devem ser divididos em partes de 120 minutos.** O Colab gratuito costuma falhar ao transcrever áudios muito longos.
 
@@ -185,7 +185,7 @@ Antes de começar, ative a GPU: **Ambiente de execução > Alterar tipo de ambie
 | Bloco | O que faz | O que você edita |
 |---|---|---|
 | 1 | Instala as dependências. Rode uma vez por runtime; não é preciso reiniciar a sessão. | Nada. |
-| 2 | Monta o Drive, lê o secret `GEMINI_API_KEY`, clona o repositório e carrega o glossário e os caminhos da sessão. | `ID_MESA`, `SESSION_NUMBER` (ex.: `"001"`), `SESSION_DATE` (`AAAA-MM-DD`), `FORCE_UPDATE` (`True` para puxar mudanças do repositório), `MODEL_OVERRIDE` (`None` usa a fila padrão; vale para os Blocos 4 e 6). |
+| 2 | Monta o Drive, lê o secret `GEMINI_API_KEY`, clona o repositório e carrega o glossário e os caminhos da sessão. | `TABLE_ID`, `SESSION_NUMBER` (ex.: `"001"`), `SESSION_DATE` (`AAAA-MM-DD`), `FORCE_UPDATE` (`True` para puxar mudanças do repositório), `MODEL_OVERRIDE` (`None` usa a fila padrão; vale para os Blocos 4 e 6). |
 | 3 | Transcreve o áudio (arquivo único ou partes). | Opcionalmente, `model_precision` e `model_name`. |
 | 4 | Gera a crônica com o Gemini. | `TEMPLATE`: `template_chronicle_v1` para sessões normais, `template_session0_v1` para a Sessão 0. |
 | 5 | Publica a crônica no Notion, criando também as páginas de NPCs. **Pule se a mesa não usa o Notion.** | Nada. |
@@ -210,8 +210,8 @@ Antes de começar, ative a GPU: **Ambiente de execução > Alterar tipo de ambie
 
 Para campanhas que já têm crônicas e transcrições guardadas em `archive/`:
 
-- **`backlog_notion.ipynb`** lê as crônicas de `archive/chronicles/<MESA>/` e publica no Notion as que ainda não existem lá (sessões já cadastradas são puladas, sem sobrescrever). Todas as sessões publicadas recebem a data `DEFAULT_DATE`. Se a consulta ao Notion falhar, nada é publicado.
-- **`backlog_logs.ipynb`** lê as crônicas e as transcrições de `archive/` e grava os logs direto em `archive/logs/<MESA>/`. Com `OVERWRITE_EXISTING = False`, sessões que já têm log são puladas; é um ponto de retomada. As datas vêm do Notion; se a sessão não estiver lá, usa-se a data do arquivo. `MAX_SESSIONS_PER_RUN` e `SLEEP_SECONDS` controlam o ritmo para respeitar os limites do Free Tier. Ao final, os logs consolidados são atualizados.
+- **`backlog_notion.ipynb`** lê as crônicas de `archive/chronicles/<TABLE>/` e publica no Notion as que ainda não existem lá (sessões já cadastradas são puladas, sem sobrescrever). Todas as sessões publicadas recebem a data `DEFAULT_DATE`. Se a consulta ao Notion falhar, nada é publicado.
+- **`backlog_logs.ipynb`** lê as crônicas e as transcrições de `archive/` e grava os logs direto em `archive/logs/<TABLE>/`. Com `OVERWRITE_EXISTING = False`, sessões que já têm log são puladas; é um ponto de retomada. As datas vêm do Notion; se a sessão não estiver lá, usa-se a data do arquivo. `MAX_SESSIONS_PER_RUN` e `SLEEP_SECONDS` controlam o ritmo para respeitar os limites do Free Tier. Ao final, os logs consolidados são atualizados.
 
 ### Migrar arquivos da estrutura antiga
 Quem já tem crônicas e transcrições soltas na raiz do projeto ou na pasta `Crônicas e Transcrições` pode movê-las para a estrutura atual uma única vez, com `migrate_legacy_files` (em `src/session_archiver.py`). A **simulação é o padrão**: ela só lista o que seria movido, por pasta de destino, e aponta conflitos.
@@ -233,10 +233,10 @@ migrate_legacy_files(PROJECT_FOLDER, dry_run=False)  # move de fato
 |---|---|---|
 | `<ID>w.wav` ou `<ID>_parte_NNN.wav` | FFmpeg | `workbench/` (apagar manualmente) |
 | `<ID>_transcricao_final_parte_NNN.txt` | Bloco 3 (uma por parte; permite retomar) | `workbench/` |
-| `<ID>_transcricao_final.txt` | Bloco 3 | `workbench/`, depois `archive/transcriptions/<MESA>/` |
-| `<ID>_cronica.md` | Bloco 4 | `workbench/`, depois `archive/chronicles/<MESA>/` |
-| `<ID>_log.md` | Bloco 6 | `workbench/`, depois `archive/logs/<MESA>/` |
-| `<MESA>_Logs_Consolidados_Parte_X.md` | Bloco 7 e `backlog_logs` | `archive/logs/<MESA>/` |
+| `<ID>_transcricao_final.txt` | Bloco 3 | `workbench/`, depois `archive/transcriptions/<TABLE>/` |
+| `<ID>_cronica.md` | Bloco 4 | `workbench/`, depois `archive/chronicles/<TABLE>/` |
+| `<ID>_log.md` | Bloco 6 | `workbench/`, depois `archive/logs/<TABLE>/` |
+| `<TABLE>_Logs_Consolidados_Parte_X.md` | Bloco 7 e `backlog_logs` | `archive/logs/<TABLE>/` |
 
 Os logs consolidados reúnem 20 sessões por arquivo (Parte 1: sessões 1 a 20; Parte 2: 21 a 40; e assim por diante), pensados para serem enviados como fonte a uma ferramenta de consulta de documentos.
 
@@ -274,7 +274,7 @@ O `requirements.txt` lista as dependências para quem for rodar fora do Colab. N
 | "Secret 'GEMINI_API_KEY' não encontrado" | Cadastre o secret no painel de Secrets do Colab, libere o acesso para o notebook e rode o Bloco 2 de novo. |
 | "Erro ao baixar o prompt" | O nome do template não existe na branch `main`, ou o GitHub está indisponível. |
 | "Mesa '...' não encontrada" | A sigla difere da do `notion_config.json` (maiúsculas contam) ou a mesa não usa o Notion; neste caso, pule o Bloco 5. |
-| Aviso "Pasta NOVA criada" que você não esperava | A sigla foi digitada diferente da usada antes. Mova os arquivos e corrija o `ID_MESA`. |
+| Aviso "Pasta NOVA criada" que você não esperava | A sigla foi digitada diferente da usada antes. Mova os arquivos e corrija o `TABLE_ID`. |
 | "Arquivamento cancelado" no Bloco 7 | Já existe um arquivo com o mesmo nome no destino. Nada foi movido; confira antes de repetir. |
 | Erros estranhos de biblioteca | Use **Ambiente de execução > Desconectar e excluir ambiente de execução** e comece do Bloco 1. |
 

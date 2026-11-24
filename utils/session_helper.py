@@ -11,9 +11,9 @@ def build_folder_layout(project_folder, table_id):
         ├── config/                        notion_config.json
         ├── workbench/                     área de trabalho: .wav, partes, transcrição, crônica e log em revisão
         └── archive/
-            ├── chronicles/<MESA>/
-            ├── logs/<MESA>/               logs individuais + consolidados
-            └── transcriptions/<MESA>/
+            ├── chronicles/<TABLE>/
+            ├── logs/<TABLE>/              logs individuais + consolidados
+            └── transcriptions/<TABLE>/
     """
     archive_folder = os.path.join(project_folder, "archive")
     return {
