@@ -8,6 +8,7 @@ class GlossaryManager:
     
     TABLE_CONFIG = {
         "adm": "glossary_adm.md",  #AdM: Aventuras do Mar
+        "adz": "glossary_adz.md",  #ADZ: AdoradoreZ
         "dia": "glossary_dia.md",  #DiA: Descent into Avernos, mesa do Inferno
         "dit": "glossary_dit.md",  #DiT: Dead in Thay
         "id": "glossary_id.md",    #ID: Icewind Dale, mesa dos Zéfiros

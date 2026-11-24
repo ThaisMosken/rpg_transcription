@@ -79,6 +79,7 @@
 - Krynn
 - Lonelywood
 - Luskan
+- Mechanus
 - Mournland
 - Netheril
 - Neverwinter
