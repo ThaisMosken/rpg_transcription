@@ -28,7 +28,7 @@ flowchart TD
 
 | Notebook | Purpose |
 |---|---|
-| `notebooks/transcritor_rpg.ipynb` | Full pipeline for **a single session**, block by block (Blocks 1 to 7). |
+| `notebooks/session_pipeline.ipynb` | Full pipeline for **a single session**, block by block (Blocks 1 to 7). |
 | `notebooks/backlog_notion.ipynb` | Publishes the chronicles of older sessions to Notion **in batch**. |
 | `notebooks/backlog_logs.ipynb` | Generates the logs **in batch** for older sessions that already have a chronicle and a transcription. |
 
@@ -61,7 +61,7 @@ rpg-transcription/
     └── transcriptions/<MESA>/    archived final transcriptions
 ```
 
-`workbench/` is the only folder the pipeline writes to while processing. Everything in it is disposable once archived, which is why the configuration files and the archive live in separate folders.
+In the single-session flow, `workbench/` is the only folder the pipeline writes to while processing (the `backlog_logs` notebook is the exception: it writes straight to `archive/logs/<MESA>/`). Everything in `workbench/` is disposable once archived, which is why the configuration files and the archive live in separate folders.
 
 > `<MESA>` is the **table code** (the campaign's short identifier, for example `ABC`). Codes are case sensitive: `ABC` and `Abc` are different tables and produce different folders.
 
@@ -119,9 +119,9 @@ How each field works:
 > The glossary lookup lowercases the table code, but the folders and `notion_config.json` do not. If you type `Abc` instead of `ABC`, the glossary is still found and a new folder is created. That is why Block 7 warns whenever a table folder is created.
 
 ### 6. Model and prompt configuration
-- `config/gemini_config.json` (in the repository) defines the model queue, the output token limit, the error codes that trigger the next model in the queue (fallback) and the sampling parameters. To test a specific model, use `MODEL_OVERRIDE` (in the editable area of Block 2 in `transcritor_rpg.ipynb` and in the first cell of `backlog_logs.ipynb`); leave it as `None` to use the default queue.
+- `config/gemini_config.json` (in the repository) defines the model queue, the output token limit, the error codes that trigger the next model in the queue (fallback) and the sampling parameters. To test a specific model, use `MODEL_OVERRIDE` (in the editable area of Block 2 in `session_pipeline.ipynb` and in the first cell of `backlog_logs.ipynb`); leave it as `None` to use the default queue.
 - The **prompts** (`prompts/`) and **glossaries** (`lore/`) are downloaded from the `main` branch on GitHub on every run: changes only take effect after you push.
-- If you use a fork, you must change the repository address in these places: `BASE_URL` in `utils/glossary_manager.py`, and the prompt URL in `src/chronicler.py` and `src/session_logger.py`.
+- If you use a fork, you must change the repository address in these places: `BASE_URL` in `utils/glossary_manager.py`; the prompt URL in `src/chronicler.py` and `src/session_logger.py`; and the `git clone` in Block 2 of `session_pipeline.ipynb`, in Block 2 of `backlog_notion.ipynb` and in the first cell of `backlog_logs.ipynb`.
 
 ---
 
@@ -180,7 +180,7 @@ Copy the `.wav` (or the parts) to `rpg-transcription/workbench/`.
 
 ---
 
-## Usage: a single session (`transcritor_rpg.ipynb`)
+## Usage: a single session (`session_pipeline.ipynb`)
 
 Before starting, enable the GPU: **Runtime > Change runtime type > T4 GPU**. Transcription runs on GPU only; without one, the code stops with an error message.
 
@@ -189,7 +189,7 @@ Before starting, enable the GPU: **Runtime > Change runtime type > T4 GPU**. Tra
 | 1 | Installs the dependencies. Run once per runtime; no session restart is needed. | Nothing. |
 | 2 | Mounts Drive, reads the `GEMINI_API_KEY` secret, clones the repository and loads the glossary and the session paths. | `ID_MESA`, `SESSION_NUMBER` (e.g. `"001"`), `SESSION_DATE` (`YYYY-MM-DD`), `FORCE_UPDATE` (`True` to pull repository changes), `MODEL_OVERRIDE` (`None` uses the default queue; applies to Blocks 4 and 6). |
 | 3 | Transcribes the audio (single file or parts). | Optionally `model_precision` and `model_name`. |
-| 4 | Generates the chronicle with Gemini. | `TEMPLATE`: `template_cronica_v1` for regular sessions, `template_sessao0_v1` for Session 0. |
+| 4 | Generates the chronicle with Gemini. | `TEMPLATE`: `template_chronicle_v1` for regular sessions, `template_session0_v1` for Session 0. |
 | 5 | Publishes the chronicle to Notion, also creating the NPC pages. **Skip it if the table does not use Notion.** | Nothing. |
 | 6 | Generates the session's factual log in `workbench/`, from the transcription, the reviewed chronicle and the glossary. Uses `SESSION_DATE` as the session date. | Nothing. |
 | 7 | Archives the session and updates the consolidated logs (see below). | Nothing. |
@@ -248,7 +248,7 @@ The consolidated logs group 20 sessions per file (Part 1: sessions 1 to 20; Part
 rpg_transcription/
 ├── config/        gemini_config.json (model queue, limits and fallback)
 ├── lore/          glossary.md (general) and glossary_<code>.md (per table)
-├── notebooks/     transcritor_rpg, backlog_notion, backlog_logs
+├── notebooks/     session_pipeline, backlog_notion, backlog_logs
 ├── prompts/       prompt templates for the chronicle, Session 0 and the log
 ├── src/           transcription, chronicle, log, archiving and batch publishing
 ├── utils/         glossary, session paths, Notion and CUDA libraries
