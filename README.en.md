@@ -1,295 +1,300 @@
 # RPG Transcription & Chronicle Generator
 
-[Versão em português](README.md)
+[English version](README.en.md)
 
-A pipeline that turns the recording of a tabletop RPG session into organized campaign material: audio **transcription** with [faster-whisper](https://github.com/SYSTRAN/faster-whisper), a narrative **chronicle** and a structured **factual log** generated with the Gemini API, and **optional publishing to Notion**. Everything runs in Google Colab notebooks (free T4 GPU) and stores its files in Google Drive.
+Pipeline que transforma a gravação de uma sessão de RPG de mesa em material de campanha organizado: **transcrição** do áudio com [faster-whisper](https://github.com/SYSTRAN/faster-whisper), **crônica** narrativa e **log factual** gerados com a Gemini API, e **publicação opcional no Notion**. Tudo roda em notebooks do Google Colab (GPU T4 gratuita) e guarda os arquivos no Google Drive.
 
-It was built for game masters who record their sessions and want, for each campaign, a readable summary (the chronicle) and a detailed reference base (the logs), at no infrastructure cost.
-
-> **Note on language.** The prompts, glossaries, generated files, log messages and Notion property names are in Brazilian Portuguese, and the pipeline transcribes audio in Portuguese (`language="pt"`). Names such as `_cronica.md` or `Sessão` are quoted exactly as they appear in the project.
+Foi pensado para mestres que gravam as sessões e querem manter, para cada campanha, um resumo legível (a crônica) e uma base detalhada para consulta (os logs), sem custo de infraestrutura.
 
 ---
 
-## Pipeline overview
+## Visão geral do pipeline
 
 ```mermaid
 flowchart TD
-    A["Session audio"] -->|"FFmpeg"| B["WAV in workbench/"]
-    B -->|"Block 3 - faster-whisper"| C["Transcription"]
-    C -->|"Block 4 - Gemini"| D["Chronicle"]
-    D -->|"manual review"| E["Reviewed chronicle"]
-    E -->|"Block 5"| F[("Notion")]
-    E -->|"Block 6 - Gemini"| G["Factual log"]
-    C -->|"Block 6 - Gemini"| G
-    C -->|"Block 7"| H["archive/"]
-    E -->|"Block 7"| H
-    G -->|"Block 7"| H
+    A["Áudio da sessão"] -->|"FFmpeg"| B["WAV em workbench/"]
+    B -->|"Bloco 3 - faster-whisper"| C["Transcrição"]
+    C -->|"Bloco 4 - Gemini"| D["Crônica"]
+    D -->|"revisão manual"| E["Crônica revisada"]
+    E -->|"Bloco 5"| F[("Notion")]
+    E -->|"Bloco 6 - Gemini"| G["Log factual"]
+    C -->|"Bloco 6 - Gemini"| G
+    C -->|"Bloco 7"| H["archive/"]
+    E -->|"Bloco 7"| H
+    G -->|"Bloco 7"| H
 ```
 
-| Notebook | Purpose |
+| Notebook | Para que serve |
 |---|---|
-| `notebooks/session_pipeline.ipynb` | Full pipeline for **a single session**, block by block (Blocks 1 to 7). |
-| `notebooks/backlog_notion.ipynb` | Publishes the chronicles of older sessions to Notion **in batch**. |
-| `notebooks/backlog_logs.ipynb` | Generates the logs **in batch** for older sessions that already have a chronicle and a transcription. |
+| `notebooks/session_pipeline.ipynb` | Pipeline completo de **uma sessão**, bloco a bloco (Blocos 1 a 7). |
+| `notebooks/backlog_notion.ipynb` | Publica no Notion, **em lote**, as crônicas de sessões antigas. |
+| `notebooks/backlog_logs.ipynb` | Gera os logs, **em lote**, das sessões antigas que já têm crônica e transcrição. |
 
 ---
 
-## Prerequisites
+## Pré-requisitos
 
-- **A Google account**, for Colab (free T4 GPU) and Drive.
-- **A Gemini API key** (the Free Tier is enough, but it has usage limits; see [Limits and troubleshooting](#limits-and-troubleshooting)).
-- **A Notion integration** (optional): only needed to publish chronicles to Notion. Tables without Notion use the pipeline normally and skip Block 5.
-- **FFmpeg** installed on your computer, to convert and split audio files before uploading them to Drive.
+- **Conta Google**, para o Colab (GPU T4 gratuita) e o Drive.
+- **Chave da Gemini API** (o Free Tier basta, mas tem limites de uso; veja [Limites e solução de problemas](#limites-e-solução-de-problemas)).
+- **Integração do Notion** (opcional): só é necessária para publicar crônicas no Notion. Mesas sem Notion usam o pipeline normalmente, pulando o Bloco 5.
+- **FFmpeg** instalado no seu computador, para converter e dividir os áudios antes de enviá-los ao Drive.
 
 ---
 
-## Initial setup (done once)
+## Configuração inicial (feita uma vez)
 
-### 1. Open the notebooks in Colab
-In Colab, use **File > Open notebook > GitHub** and enter the repository. The notebooks clone this repository by themselves on the first run.
+### 1. Abrir os notebooks no Colab
+No Colab, use **Arquivo > Abrir notebook > GitHub** e informe o repositório. Os notebooks clonam este repositório sozinhos na primeira execução.
 
-### 2. Folder structure in Drive
-Create the `rpg-transcription` folder at the root of your Drive (`MyDrive/rpg-transcription`; the path is set in the `PROJECT_FOLDER` variable of the notebooks). The pipeline uses this structure and creates the `archive/` folders as needed:
+### 2. Estrutura de pastas no Drive
+Crie a pasta `rpg-transcription` na raiz do seu Drive (`MyDrive/rpg-transcription`; o caminho está na variável `PROJECT_FOLDER` dos notebooks). O pipeline usa esta estrutura e cria as pastas de `archive/` conforme precisa:
 
 ```
 rpg-transcription/
 ├── config/                       notion_config.json
-├── workbench/                    working area: audio, transcription, chronicle and log under review
+├── workbench/                    área de trabalho: áudios, transcrição, crônica e log em revisão
 └── archive/
-    ├── chronicles/<MESA>/        archived chronicles
-    ├── logs/<MESA>/              individual + consolidated logs
-    └── transcriptions/<MESA>/    archived final transcriptions
+    ├── chronicles/<TABLE>/       crônicas arquivadas
+    ├── logs/<TABLE>/             logs individuais + consolidados
+    └── transcriptions/<TABLE>/   transcrições finais arquivadas
 ```
 
-In the single-session flow, `workbench/` is the only folder the pipeline writes to while processing (the `backlog_logs` notebook is the exception: it writes straight to `archive/logs/<MESA>/`). Everything in `workbench/` is disposable once archived, which is why the configuration files and the archive live in separate folders.
+No fluxo de uma sessão, a pasta `workbench/` é a única em que o pipeline escreve durante o processamento (o notebook `backlog_logs` é a exceção: grava direto em `archive/logs/<TABLE>/`). Tudo o que está em `workbench/` é descartável depois de arquivar; por isso os arquivos de configuração e o arquivo morto ficam em pastas separadas.
 
-> `<MESA>` is the **table code** (the campaign's short identifier, for example `ABC`). Codes are case sensitive: `ABC` and `Abc` are different tables and produce different folders.
+> `<TABLE>` é a **sigla da mesa** (por exemplo, `ABC`). As siglas diferenciam maiúsculas de minúsculas: `ABC` e `Abc` são mesas diferentes e geram pastas diferentes.
 
-### 3. Colab Secrets
-In Colab, open the **Secrets** panel (key icon) and add the following, enabling notebook access:
+### 3. Secrets do Colab
+No Colab, abra o painel de **Secrets** (ícone de chave) e cadastre, liberando o acesso para o notebook:
 
-| Secret | Use |
+| Secret | Uso |
 |---|---|
-| `GEMINI_API_KEY` | Required. Chronicle and log generation. Read in Block 2 and used by Blocks 4 and 6. |
-| `NOTION_TOKEN` | Only if you publish to Notion. |
+| `GEMINI_API_KEY` | Obrigatório. Geração de crônicas e logs. Lido no Bloco 2 e usado pelos Blocos 4 e 6. |
+| `NOTION_TOKEN` | Só se for publicar no Notion. |
 
-### 4. Notion integration (optional)
-1. Create an internal integration in Notion and copy its token into the `NOTION_TOKEN` secret.
-2. Connect the integration to the databases you will use (database menu > Connections).
-3. Make sure the databases have the properties below. Names and types must match exactly (the names are in Portuguese, as the code expects):
+### 4. Integração com o Notion (opcional)
+1. Crie uma integração interna no Notion e copie o token para o secret `NOTION_TOKEN`.
+2. Conecte a integração aos databases que serão usados (menu do database > Conexões).
+3. Garanta que os databases tenham as propriedades abaixo. Os nomes e tipos precisam ser exatamente estes:
 
-| Database | Property | Type |
+| Database | Propriedade | Tipo |
 |---|---|---|
-| Sessions | `Nome` (name) | Title |
-| Sessions | `Título` (title) | Text |
-| Sessions | `Sessão` (session) | Number |
-| Sessions | `Data` (date) | Date |
-| Sessions | `NPCs` | Relation (to the NPC database) |
-| Sessions | `Campanha` (campaign) | Text (required if the table uses `DB_CAMPAIGN`) |
-| NPCs | `Nome` (name) | Title |
+| Sessões | `Nome` | Título |
+| Sessões | `Título` | Texto |
+| Sessões | `Sessão` | Número |
+| Sessões | `Data` | Data |
+| Sessões | `NPCs` | Relação (com o database de NPCs) |
+| Sessões | `Campanha` | Texto (obrigatória se a mesa usar `DB_CAMPAIGN`) |
+| NPCs | `Nome` | Título |
 
-4. Create the file `config/notion_config.json` in Drive (not in the repository), with one entry per table:
+4. Crie o arquivo `config/notion_config.json` no Drive (não no repositório), com uma entrada por mesa:
 
 ```json
 {
   "ABC": {
-    "DB_SESSAO": "<sessions database id>",
-    "DB_NPCS": "<NPC database id>",
-    "DB_CAMPAIGN": "<campaign name>"
+    "DB_SESSAO": "<id do database de sessões>",
+    "DB_NPCS": "<id do database de NPCs>",
+    "DB_CAMPAIGN": "<nome da campanha>"
   }
 }
 ```
 
-A database id is the 32-character code that appears in its URL. **This file contains identifiers from your workspace: never commit it.**
+O id de um database é o código de 32 caracteres que aparece na URL dele. **Esse arquivo contém identificadores do seu workspace: nunca o versione.**
 
-How each field works:
+Como cada campo funciona:
 
-- `DB_SESSAO` and `DB_NPCS`: the table's sessions and NPC databases. They can be **dedicated to one campaign** or **shared by several**.
-- `DB_CAMPAIGN`: the campaign name. It is written to the `Campanha` property of each session and used as a filter in queries (for example, so the backlog notebooks can find which sessions already exist). It is optional for a dedicated database, but **must be set when the database is shared**; without it, sessions from different campaigns get mixed up in the existence check.
-- The NPC database is queried only by the `Nome` property, with no campaign filter. In a shared NPC database, an NPC with the same name in two campaigns points to the same page.
-- The table code must be **identical** to the `ID_MESA` used in the notebooks.
+- `DB_SESSAO` e `DB_NPCS`: databases de sessões e de NPCs da mesa. Podem ser **exclusivos de uma campanha** ou **compartilhados por várias**.
+- `DB_CAMPAIGN`: nome da campanha, gravado na propriedade `Campanha` de cada sessão e usado como filtro nas consultas (por exemplo, para os notebooks de backlog descobrirem quais sessões já existem). É opcional em um database exclusivo, mas **deve ser informado quando o database é compartilhado**; sem ele, as sessões de campanhas diferentes se misturam na verificação.
+- O database de NPCs é consultado só pela propriedade `Nome`, sem filtro de campanha. Em um database de NPCs compartilhado, um NPC com o mesmo nome em duas campanhas aponta para a mesma página.
+- A sigla da mesa precisa ser **igual** à usada em `TABLE_ID` nos notebooks.
 
-### 5. Registering a new table
-1. Pick a code (letters only, case sensitive) and use it as `ID_MESA`.
-2. Create the table's glossary at `lore/glossary_<code in lowercase>.md` and register it in `TABLE_CONFIG`, in `utils/glossary_manager.py`.
-3. If the table uses Notion, add its entry to `config/notion_config.json`.
+### 5. Cadastrar uma mesa nova
+1. Escolha a sigla (só letras, respeitando maiúsculas) e use-a em `TABLE_ID`.
+2. Crie o glossário da mesa em `lore/glossary_<sigla em minúsculas>.md` e registre-o em `TABLE_CONFIG`, em `utils/glossary_manager.py`.
+3. Se a mesa usa o Notion, adicione a entrada em `config/notion_config.json`.
 
-**Glossaries.** There is a general glossary (`lore/glossary.md`) and one per table. The listed names serve two purposes: they guide Whisper (`initial_prompt`) and they are the spelling reference Gemini uses to correct names in the chronicle and the log. Keep the section titles the prompts expect, especially `# Nomes de personagens de jogadores` (player character names) and `# Nomes de outros personagens` (other characters' names): the log uses the first one to list the player characters, always in glossary order.
+**Glossários.** Existe um glossário geral (`lore/glossary.md`) e um por mesa. Os nomes listados servem a dois fins: orientam o Whisper (`initial_prompt`) e são a referência de grafia que o Gemini usa para corrigir nomes na crônica e no log. Mantenha os títulos de seção que os prompts esperam, em especial `# Nomes de personagens de jogadores` e `# Nomes de outros personagens`: o log usa a primeira para listar os personagens dos jogadores, sempre na ordem do glossário.
 
-> The glossary lookup lowercases the table code, but the folders and `notion_config.json` do not. If you type `Abc` instead of `ABC`, the glossary is still found and a new folder is created. That is why Block 7 warns whenever a table folder is created.
+> A busca do glossário converte a sigla para minúsculas, mas as pastas e o `notion_config.json` não. Se digitar `Abc` em vez de `ABC`, o glossário ainda é encontrado e uma pasta nova é criada. Por isso o Bloco 7 avisa quando uma pasta de mesa é criada.
 
-### 6. Model and prompt configuration
-- `config/gemini_config.json` (in the repository) defines the model queue, the output token limit, the error codes that trigger the next model in the queue (fallback) and the sampling parameters. To test a specific model, use `MODEL_OVERRIDE` (in the editable area of Block 2 in `session_pipeline.ipynb` and in the first cell of `backlog_logs.ipynb`); leave it as `None` to use the default queue.
-- The **prompts** (`prompts/`) and **glossaries** (`lore/`) are downloaded from the `main` branch on GitHub on every run: changes only take effect after you push.
-- If you use a fork, you must change the repository address in these places: `BASE_URL` in `utils/glossary_manager.py`; the prompt URL in `src/chronicler.py` and `src/session_logger.py`; and the `git clone` in Block 2 of `session_pipeline.ipynb`, in Block 2 of `backlog_notion.ipynb` and in the first cell of `backlog_logs.ipynb`.
+### 6. Configuração dos modelos e dos prompts
+- `config/gemini_config.json` (no repositório) define a fila de modelos, o limite de tokens de saída, os códigos de erro que acionam o próximo modelo da fila (fallback) e os parâmetros de amostragem. Para testar um modelo específico, use `MODEL_OVERRIDE` (na área editável do Bloco 2 do `session_pipeline.ipynb` e na célula inicial do `backlog_logs.ipynb`); deixe como `None` para usar a fila padrão.
+- Os **prompts** (`prompts/`) e os **glossários** (`lore/`) são baixados da branch `main` no GitHub a cada execução: alterações só valem depois do push.
+- Quem usar um fork precisa trocar o endereço do repositório nestes pontos: `BASE_URL` em `utils/glossary_manager.py`; a URL do prompt em `src/chronicler.py` e `src/session_logger.py`; e o `git clone` no Bloco 2 do `session_pipeline.ipynb`, no Bloco 2 do `backlog_notion.ipynb` e na célula inicial do `backlog_logs.ipynb`.
+
+### 7. Dependências com versão fixada
+Algumas dependências têm versão fixada ou não devem ser instaladas à mão. Os motivos, para saber quando mexer:
+
+- **`av<19`** (teto de versão): o PyAV 19 removeu o argumento `metadata_errors` de `av.open()`, que o faster-whisper 1.2.1 ainda passa. Sem o teto, toda transcrição falha com `TypeError`. Remova o teto quando o faster-whisper lançar uma versão compatível com o PyAV 19.
+- **`nvidia-cublas-cu12` e `nvidia-cudnn-cu12==9.*`**: exigidas pelo ctranslate2 (faster-whisper) para rodar na GPU. O pré-carregamento é feito em `utils/cuda_preloader.py`, chamado por `src/transcription_processor.py`.
+- **`numpy`, `torch` e `WhisperX`: não instale manualmente.** O Colab já traz o que é preciso, e esses pacotes quebram o ambiente.
+
+Os mesmos pins estão no `pip install` do Bloco 1 e no `requirements.txt` (neste, com um comentário em cada um). Ao alterar um, altere o outro.
 
 ---
 
-## Audio preparation (FFmpeg)
+## Preparação do áudio (FFmpeg)
 
-Whisper works best with 16 kHz mono `.wav` files. Convert the recording before uploading it to Drive. The file name is `<CODE><NUMBER>`, matching the notebook's `ID_MESA` + `SESSION_NUMBER` (for example, `ABC001`). The examples use `.mp3`; adjust the extension as needed.
+O Whisper trabalha melhor com `.wav` mono de 16 kHz. Converta a gravação antes de enviá-la ao Drive. O nome do arquivo é `<SIGLA><NÚMERO>`, igual ao `TABLE_ID` + `SESSION_NUMBER` do notebook (por exemplo, `ABC001`). Os exemplos usam `.mp3`; ajuste a extensão se necessário.
 
-**Audio longer than 120 minutes must be split into 120-minute parts.** The free Colab tier often fails when transcribing very long audio.
+**Áudios acima de 120 minutos devem ser divididos em partes de 120 minutos.** O Colab gratuito costuma falhar ao transcrever áudios muito longos.
 
-### Single file (up to 120 minutes)
+### Arquivo único (até 120 minutos)
 
 **Git Bash:**
 ```bash
-cd "<PATH_TO_THE_FILE_FOLDER>"
+cd "<CAMINHO_DA_PASTA_DO_ARQUIVO>"
 NOME="ABC001"; ffmpeg -i "$NOME.mp3" -ac 1 -ar 16000 -c:a pcm_s16le "${NOME}w.wav"
 ```
 
 **PowerShell:**
 ```PowerShell
-cd "<PATH_TO_THE_FILE_FOLDER>"
+cd "<CAMINHO_DA_PASTA_DO_ARQUIVO>"
 $nome = "ABC001"; ffmpeg -i "$nome.mp3" -ac 1 -ar 16000 -c:a pcm_s16le "$($nome)w.wav"
 ```
 
-### Several files at once
+### Vários arquivos de uma vez
 
 **Git Bash:**
 ```bash
-cd "<PATH_TO_THE_FILES_FOLDER>"
+cd "<CAMINHO_DA_PASTA_DOS_ARQUIVOS>"
 for f in *.mp3; do ffmpeg -i "$f" -ac 1 -ar 16000 -c:a pcm_s16le "${f%.mp3}w.wav"; done
 ```
 
 **PowerShell:**
 ```PowerShell
-cd "<PATH_TO_THE_FILES_FOLDER>"
+cd "<CAMINHO_DA_PASTA_DOS_ARQUIVOS>"
 Get-ChildItem *.mp3 | ForEach-Object { ffmpeg -i $_.Name -ac 1 -ar 16000 -c:a pcm_s16le "$($_.BaseName)w.wav" }
 ```
 
-### Long file, split into 120-minute parts
+### Arquivo longo, dividido em partes de 120 minutos
 
 **Git Bash:**
 ```bash
-cd "<PATH_TO_THE_FILE_FOLDER>"
+cd "<CAMINHO_DA_PASTA_DO_ARQUIVO>"
 NOME="ABC001"; ffmpeg -i "$NOME.mp3" -f segment -segment_time 02:00:00 -ac 1 -ar 16000 -c:a pcm_s16le "${NOME}_parte_%03d.wav"
 ```
 
 **PowerShell:**
 ```PowerShell
-cd "<PATH_TO_THE_FILE_FOLDER>"
+cd "<CAMINHO_DA_PASTA_DO_ARQUIVO>"
 $nome = "ABC001"; ffmpeg -i "$nome.mp3" -f segment -segment_time 02:00:00 -ac 1 -ar 16000 -c:a pcm_s16le "$($nome)_parte_%03d.wav"
 ```
 
-This produces `ABC001_parte_000.wav`, `ABC001_parte_001.wav` and so on. Block 3 detects the parts by itself: each one is transcribed (parts that already have a transcription are skipped) and the texts are joined, in order, into a single file.
+Isso gera `ABC001_parte_000.wav`, `ABC001_parte_001.wav` e assim por diante. O Bloco 3 detecta as partes sozinho: cada uma é transcrita (as que já têm transcrição são puladas) e os textos são juntos, em ordem, em um único arquivo.
 
-### Upload to Drive
-Copy the `.wav` (or the parts) to `rpg-transcription/workbench/`.
+### Enviar para o Drive
+Copie o `.wav` (ou as partes) para `rpg-transcription/workbench/`.
 
 ---
 
-## Usage: a single session (`session_pipeline.ipynb`)
+## Uso: uma sessão (`session_pipeline.ipynb`)
 
-Before starting, enable the GPU: **Runtime > Change runtime type > T4 GPU**. Transcription runs on GPU only; without one, the code stops with an error message.
+Antes de começar, ative a GPU: **Ambiente de execução > Alterar tipo de ambiente de execução > T4 GPU**. A transcrição roda apenas em GPU; sem ela, o código para com uma mensagem de erro.
 
-| Block | What it does | What you edit |
+| Bloco | O que faz | O que você edita |
 |---|---|---|
-| 1 | Installs the dependencies. Run once per runtime; no session restart is needed. | Nothing. |
-| 2 | Mounts Drive, reads the `GEMINI_API_KEY` secret, clones the repository and loads the glossary and the session paths. | `ID_MESA`, `SESSION_NUMBER` (e.g. `"001"`), `SESSION_DATE` (`YYYY-MM-DD`), `FORCE_UPDATE` (`True` to pull repository changes), `MODEL_OVERRIDE` (`None` uses the default queue; applies to Blocks 4 and 6). |
-| 3 | Transcribes the audio (single file or parts). | Optionally `model_precision` and `model_name`. |
-| 4 | Generates the chronicle with Gemini. | `TEMPLATE`: `template_chronicle_v1` for regular sessions, `template_session0_v1` for Session 0. |
-| 5 | Publishes the chronicle to Notion, also creating the NPC pages. **Skip it if the table does not use Notion.** | Nothing. |
-| 6 | Generates the session's factual log in `workbench/`, from the transcription, the reviewed chronicle and the glossary. Uses `SESSION_DATE` as the session date. | Nothing. |
-| 7 | Archives the session and updates the consolidated logs (see below). | Nothing. |
+| 1 | Instala as dependências. Rode uma vez por runtime; não é preciso reiniciar a sessão. | Nada. |
+| 2 | Monta o Drive, lê o secret `GEMINI_API_KEY`, clona o repositório e carrega o glossário e os caminhos da sessão. | `TABLE_ID`, `SESSION_NUMBER` (ex.: `"001"`), `SESSION_DATE` (`AAAA-MM-DD`), `FORCE_UPDATE` (`True` para puxar mudanças do repositório), `MODEL_OVERRIDE` (`None` usa a fila padrão; vale para os Blocos 4 e 6). |
+| 3 | Transcreve o áudio (arquivo único ou partes). | Opcionalmente, `model_precision` e `model_name`. |
+| 4 | Gera a crônica com o Gemini. | `TEMPLATE`: `template_chronicle_v1` para sessões normais, `template_session0_v1` para a Sessão 0. |
+| 5 | Publica a crônica no Notion, criando também as páginas de NPCs. **Pule se a mesa não usa o Notion.** | Nada. |
+| 6 | Gera o log factual da sessão em `workbench/`, a partir da transcrição, da crônica revisada e do glossário. Usa `SESSION_DATE` como data da sessão. | Nada. |
+| 7 | Arquiva a sessão e atualiza os logs consolidados (veja abaixo). | Nada. |
 
-**Review before publishing and generating the log.** After Block 4, read and correct the chronicle in `workbench/`. Block 6 treats the reviewed chronicle as the reference for spelling and facts, so it is worth reviewing it before Blocks 5 and 6. When reviewing, keep the first line as the title (`# ...`) and the list under "NPCs encontrados" (NPCs met): Block 5 uses the first line as the session title and creates one NPC page for each item in that list.
+**Revise antes de publicar e gerar o log.** Depois do Bloco 4, leia e corrija a crônica em `workbench/`. O Bloco 6 trata a crônica revisada como referência de grafia e de fatos, então vale revisá-la antes dos Blocos 5 e 6. Ao revisar, mantenha a primeira linha como título (`# ...`) e a lista sob "NPCs encontrados": o Bloco 5 usa a primeira linha como título da sessão e cria uma página de NPC para cada item dessa lista.
 
-**Block 6 (log).** The log is a factual record with seven sections: timeline and group decisions; inventory, resources and economy; clues and revealed mechanics; loose ends and active threats; companion NPCs; engagement of each player character; and behind-the-scenes notes and future planning. The raw transcription is the source for amounts, quantities and quotes; the glossary and the reviewed chronicle define how names are spelled. The log is not consolidated at this stage: that happens in Block 7.
+**Bloco 6 (log).** O log é um registro factual com sete seções: linha do tempo e decisões do grupo; inventário, recursos e economia; pistas e mecânicas reveladas; pontas soltas e ameaças ativas; NPCs acompanhantes; engajamento de cada personagem de jogador; e bastidores e planejamento futuro. A transcrição bruta é a fonte de valores, quantidades e falas; o glossário e a crônica revisada definem a grafia dos nomes. O log não é consolidado nesta etapa: isso acontece no Bloco 7.
 
-**Block 7 (archive).** Moves, rather than copies, the final transcription, the chronicle and the log from `workbench/` to the table's folders in `archive/`, and rebuilds the consolidated logs. If any destination file already exists, it **moves nothing** and lists the conflicts. If a table folder gets created, it warns you, which helps catch mistyped table codes. Any audio files and parts left in `workbench/` are for you to delete manually.
+**Bloco 7 (arquivar).** Move, e não copia, a transcrição final, a crônica e o log de `workbench/` para as pastas da mesa em `archive/`, e refaz os logs consolidados. Se algum arquivo de destino já existir, ele **não move nada** e lista os conflitos. Se uma pasta de mesa for criada, ele avisa, o que ajuda a perceber siglas digitadas de forma diferente. Os áudios e as partes que sobrarem em `workbench/` são apagados manualmente por você.
 
-**Cautions when re-running blocks**
-- Blocks 3, 4 and 6 **overwrite** their output without asking. Running Block 4 again erases the chronicle you reviewed. Block 3 resumes per part: parts that were already transcribed are skipped.
-- Block 5 does not check whether the session already exists in Notion: running it twice creates a duplicate page.
-- Blocks 4 and 6 do not depend on each other: both use `GEMINI_API_KEY` and `MODEL_OVERRIDE`, defined in Block 2. If the runtime restarts after you review the chronicle, run Blocks 1 and 2 and go straight to Block 6, **without running Block 4**, which would overwrite the reviewed chronicle.
-- After Block 7, the session's files leave `workbench/`. To reprocess an already archived session, move the files back to `workbench/` and resolve any conflicts before archiving again.
+**Cuidados ao reexecutar blocos**
+- Os Blocos 3, 4 e 6 **sobrescrevem** a saída sem perguntar. Rodar o Bloco 4 de novo apaga a crônica que você revisou. O Bloco 3 retoma por parte: as partes já transcritas são puladas.
+- O Bloco 5 não verifica se a sessão já existe no Notion: rodá-lo duas vezes cria uma página duplicada.
+- Os Blocos 4 e 6 não dependem um do outro: ambos usam `GEMINI_API_KEY` e `MODEL_OVERRIDE`, definidos no Bloco 2. Se o runtime reiniciar depois da revisão da crônica, rode os Blocos 1 e 2 e vá direto ao Bloco 6, **sem rodar o Bloco 4**, que sobrescreveria a crônica revisada.
+- Depois do Bloco 7, os arquivos da sessão saem de `workbench/`. Para reprocessar uma sessão já arquivada, mova os arquivos de volta para `workbench/` e resolva os conflitos antes de arquivar de novo.
 
 ---
 
-## Usage: older sessions (backlog)
+## Uso: sessões antigas (backlog)
 
-For campaigns that already have chronicles and transcriptions stored in `archive/`:
+Para campanhas que já têm crônicas e transcrições guardadas em `archive/`:
 
-- **`backlog_notion.ipynb`** reads the chronicles from `archive/chronicles/<MESA>/` and publishes to Notion the ones that are not there yet (sessions already registered are skipped, never overwritten). Every published session gets the `DEFAULT_DATE` date. If the Notion query fails, nothing is published.
-- **`backlog_logs.ipynb`** reads the chronicles and transcriptions from `archive/` and writes the logs directly to `archive/logs/<MESA>/`. With `OVERWRITE_EXISTING = False`, sessions that already have a log are skipped, which acts as a resume point. Dates come from Notion; if the session is not there, the file's date is used. `MAX_SESSIONS_PER_RUN` and `SLEEP_SECONDS` control the pace to respect Free Tier limits. At the end, the consolidated logs are updated.
+- **`backlog_notion.ipynb`** lê as crônicas de `archive/chronicles/<TABLE>/` e publica no Notion as que ainda não existem lá (sessões já cadastradas são puladas, sem sobrescrever). Todas as sessões publicadas recebem a data `DEFAULT_DATE`. Se a consulta ao Notion falhar, nada é publicado.
+- **`backlog_logs.ipynb`** lê as crônicas e as transcrições de `archive/` e grava os logs direto em `archive/logs/<TABLE>/`. Com `OVERWRITE_EXISTING = False`, sessões que já têm log são puladas; é um ponto de retomada. As datas vêm do Notion; se a sessão não estiver lá, usa-se a data do arquivo. `MAX_SESSIONS_PER_RUN` e `SLEEP_SECONDS` controlam o ritmo para respeitar os limites do Free Tier. Ao final, os logs consolidados são atualizados.
 
-### Migrating files from the old structure
-If you already have chronicles and transcriptions loose in the project root or in the `Crônicas e Transcrições` folder, you can move them to the current structure once, with `migrate_legacy_files` (in `src/session_archiver.py`). **Dry run is the default**: it only lists what would be moved, by destination folder, and points out conflicts.
+### Migrar arquivos da estrutura antiga
+Quem já tem crônicas e transcrições soltas na raiz do projeto ou na pasta `Crônicas e Transcrições` pode movê-las para a estrutura atual uma única vez, com `migrate_legacy_files` (em `src/session_archiver.py`). A **simulação é o padrão**: ela só lista o que seria movido, por pasta de destino, e aponta conflitos.
 
 ```python
 from src.session_archiver import migrate_legacy_files
 
-migrate_legacy_files(PROJECT_FOLDER, dry_run=True)   # only lists
-migrate_legacy_files(PROJECT_FOLDER, dry_run=False)  # actually moves
+migrate_legacy_files(PROJECT_FOLDER, dry_run=True)   # só lista
+migrate_legacy_files(PROJECT_FOLDER, dry_run=False)  # move de fato
 ```
 
 ---
 
-## Generated files
+## Arquivos gerados
 
-`<ID>` is the table code plus the session number (for example, `ABC001`).
+`<ID>` é a sigla da mesa mais o número da sessão (por exemplo, `ABC001`).
 
-| File | Generated by | Where it lives |
+| Arquivo | Gerado por | Onde fica |
 |---|---|---|
-| `<ID>w.wav` or `<ID>_parte_NNN.wav` | FFmpeg | `workbench/` (delete manually) |
-| `<ID>_transcricao_final_parte_NNN.txt` | Block 3 (one per part; enables resuming) | `workbench/` |
-| `<ID>_transcricao_final.txt` | Block 3 | `workbench/`, then `archive/transcriptions/<MESA>/` |
-| `<ID>_cronica.md` | Block 4 | `workbench/`, then `archive/chronicles/<MESA>/` |
-| `<ID>_log.md` | Block 6 | `workbench/`, then `archive/logs/<MESA>/` |
-| `<MESA>_Logs_Consolidados_Parte_X.md` | Block 7 and `backlog_logs` | `archive/logs/<MESA>/` |
+| `<ID>w.wav` ou `<ID>_parte_NNN.wav` | FFmpeg | `workbench/` (apagar manualmente) |
+| `<ID>_transcricao_final_parte_NNN.txt` | Bloco 3 (uma por parte; permite retomar) | `workbench/` |
+| `<ID>_transcricao_final.txt` | Bloco 3 | `workbench/`, depois `archive/transcriptions/<TABLE>/` |
+| `<ID>_cronica.md` | Bloco 4 | `workbench/`, depois `archive/chronicles/<TABLE>/` |
+| `<ID>_log.md` | Bloco 6 | `workbench/`, depois `archive/logs/<TABLE>/` |
+| `<TABLE>_Logs_Consolidados_Parte_X.md` | Bloco 7 e `backlog_logs` | `archive/logs/<TABLE>/` |
 
-The consolidated logs group 20 sessions per file (Part 1: sessions 1 to 20; Part 2: 21 to 40; and so on), intended to be uploaded as a source to a document-querying tool.
+Os logs consolidados reúnem 20 sessões por arquivo (Parte 1: sessões 1 a 20; Parte 2: 21 a 40; e assim por diante), pensados para serem enviados como fonte a uma ferramenta de consulta de documentos.
 
-## Repository structure
+## Estrutura do repositório
 
 ```
 rpg_transcription/
-├── config/        gemini_config.json (model queue, limits and fallback)
-├── lore/          glossary.md (general) and glossary_<code>.md (per table)
+├── config/        gemini_config.json (fila de modelos, limites e fallback)
+├── lore/          glossary.md (geral) e glossary_<sigla>.md (por mesa)
 ├── notebooks/     session_pipeline, backlog_notion, backlog_logs
-├── prompts/       prompt templates for the chronicle, Session 0 and the log
-├── src/           transcription, chronicle, log, archiving and batch publishing
-├── utils/         glossary, session paths, Notion and CUDA libraries
+├── prompts/       templates de prompt da crônica, da Sessão 0 e do log
+├── src/           transcrição, crônica, log, arquivamento e publicação em lote
+├── utils/         glossário, caminhos da sessão, Notion e bibliotecas CUDA
 └── requirements.txt
 ```
 
-`requirements.txt` lists the dependencies for anyone running outside Colab. In Colab, Block 1 installs them.
+O `requirements.txt` lista as dependências para quem for rodar fora do Colab. No Colab, quem as instala é o Bloco 1.
 
 ---
 
-## Limits and troubleshooting
+## Limites e solução de problemas
 
-**Free-tier limits**
-- Free Colab may run out of available GPUs at peak times; just try again later.
-- Audio longer than 120 minutes must be split into parts (see audio preparation).
-- The Gemini Free Tier limits requests per minute and per day. `backlog_logs` assumes about 5 per minute and 20 per day; check your account's current limits.
+**Limites do ambiente gratuito**
+- O Colab gratuito pode ficar sem GPU disponível em horários de pico; é só tentar de novo mais tarde.
+- Áudios acima de 120 minutos devem ser divididos em partes (veja a preparação do áudio).
+- O Free Tier do Gemini tem limites de requisições por minuto e por dia. O `backlog_logs` assume cerca de 5 por minuto e 20 por dia; confira os limites atuais da sua conta.
 
-The messages below are printed by the code in Portuguese; the English gloss is in parentheses.
-
-| Symptom | Likely cause and what to do |
+| Sintoma | Causa provável e o que fazer |
 |---|---|
-| "Nenhuma GPU CUDA detectada" (no CUDA GPU detected) | Enable the T4 GPU in the runtime type and run the blocks again. |
-| `TypeError` mentioning `metadata_errors` | Incompatible PyAV version. Block 1 already installs `av<19`; run it again. |
-| Warning that `nvidia-cublas-cu12` / `nvidia-cudnn-cu12` packages were not found | Run Block 1 (installation) before Block 3. |
-| Colab crashes or fails on a long audio file | Split the audio into 120-minute parts. When you run Block 3 again, parts that were already transcribed are skipped. |
-| "Cota excedida ... Tentando fallback" (quota exceeded, trying fallback; error 429 or 503) | Expected on the Free Tier: the code moves to the next model in the queue. If all fail, wait (it may be the daily limit) and run again; the backlog resumes where it stopped. |
-| "Secret 'GEMINI_API_KEY' não encontrado" (secret not found) | Add the secret in Colab's Secrets panel, enable notebook access and run Block 2 again. |
-| "Erro ao baixar o prompt" (error downloading the prompt) | The template name does not exist on the `main` branch, or GitHub is unavailable. |
-| "Mesa '...' não encontrada" (table not found) | The code differs from the one in `notion_config.json` (case matters), or the table does not use Notion; in that case, skip Block 5. |
-| An unexpected "Pasta NOVA criada" (new folder created) warning | The table code was typed differently from before. Move the files and fix `ID_MESA`. |
-| "Arquivamento cancelado" (archiving cancelled) in Block 7 | A file with the same name already exists at the destination. Nothing was moved; check before repeating. |
-| Strange library errors | Use **Runtime > Disconnect and delete runtime** and start again from Block 1. |
+| "Nenhuma GPU CUDA detectada" | Ative a GPU T4 no tipo de ambiente de execução e rode os blocos de novo. |
+| `TypeError` mencionando `metadata_errors` | Versão do PyAV incompatível. O Bloco 1 já instala `av<19`; rode-o de novo. |
+| Aviso de pacotes `nvidia-cublas-cu12` / `nvidia-cudnn-cu12` não encontrados | Rode o Bloco 1 (instalação) antes do Bloco 3. |
+| Colab cai ou falha em um áudio longo | Divida o áudio em partes de 120 minutos. Ao rodar o Bloco 3 de novo, as partes já transcritas são puladas. |
+| "Cota excedida ... Tentando fallback" (erro 429 ou 503) | Esperado no Free Tier: o código passa ao próximo modelo da fila. Se todos falharem, aguarde (pode ser o limite diário) e rode de novo; o backlog retoma de onde parou. |
+| "Secret 'GEMINI_API_KEY' não encontrado" | Cadastre o secret no painel de Secrets do Colab, libere o acesso para o notebook e rode o Bloco 2 de novo. |
+| "Erro ao baixar o prompt" | O nome do template não existe na branch `main`, ou o GitHub está indisponível. |
+| "Mesa '...' não encontrada" | A sigla difere da do `notion_config.json` (maiúsculas contam) ou a mesa não usa o Notion; neste caso, pule o Bloco 5. |
+| Aviso "Pasta NOVA criada" que você não esperava | A sigla foi digitada diferente da usada antes. Mova os arquivos e corrija o `TABLE_ID`. |
+| "Arquivamento cancelado" no Bloco 7 | Já existe um arquivo com o mesmo nome no destino. Nada foi movido; confira antes de repetir. |
+| Erros estranhos de biblioteca | Use **Ambiente de execução > Desconectar e excluir ambiente de execução** e comece do Bloco 1. |
 
-> Do not install `numpy`, `torch` or `WhisperX` manually: Colab already provides what is needed and these packages conflict. `av` has a version ceiling (`av<19`) due to an incompatibility with faster-whisper 1.2.1; the reason is commented in Block 1.
+> Não instale `numpy`, `torch` nem `WhisperX` manualmente: o Colab já traz o que é preciso e esses pacotes entram em conflito. O motivo do teto de versão do `av` (`av<19`) está em [Dependências com versão fixada](#7-dependências-com-versão-fixada).
 
 ---
 
-## Contributing
+## Contribuição
 
-Questions, problems and suggestions can be filed as issues in this repository.
+Dúvidas, problemas e sugestões podem ser registrados como issues neste repositório.
 
-## License
+## Licença
 
-This repository does not define a license yet.
+Este repositório ainda não define uma licença.

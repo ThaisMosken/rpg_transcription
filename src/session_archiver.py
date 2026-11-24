@@ -8,7 +8,7 @@ from utils.session_helper import build_folder_layout
 # Pasta antiga onde as crônicas e transcrições eram arquivadas manualmente
 LEGACY_ARCHIVE_FOLDER_NAME = "Crônicas e Transcrições"
 
-# '<MESA><num>_cronica.md' ou '<MESA><num>_transcricao_final.txt'. A sigla é a parte antes
+# '<TABLE><num>_cronica.md' ou '<TABLE><num>_transcricao_final.txt'. A sigla é a parte antes
 # do número, respeitando maiúsculas. As partes ('_transcricao_final_parte_NNN.txt'), os
 # áudios, os logs e os configs não casam com o padrão e, portanto, nunca são movidos.
 _LEGACY_FILE_PATTERN = re.compile(
@@ -33,8 +33,8 @@ def ensure_folder_with_notice(folder):
 def archive_session(project_folder, table_id, session_id, batch_size=20):
     """
     Bloco "Arquivar sessão": MOVE (não copia) a transcrição final, a crônica e o log de
-    workbench/ para archive/transcriptions/<MESA>/, archive/chronicles/<MESA>/ e
-    archive/logs/<MESA>/, e regera os consolidados de logs a partir da pasta de logs da mesa.
+    workbench/ para archive/transcriptions/<TABLE>/, archive/chronicles/<TABLE>/ e
+    archive/logs/<TABLE>/, e regera os consolidados de logs a partir da pasta de logs da mesa.
 
     - Se algum destino já tiver um arquivo com o mesmo nome, nada é movido (nunca sobrescreve).
     - Arquivos ausentes no workbench geram um aviso e os demais são arquivados normalmente.
@@ -102,7 +102,7 @@ def migrate_legacy_files(project_folder, dry_run=True, table_ids=None):
     Execução única: move as transcrições e crônicas antigas para a nova estrutura.
 
     Origens: a raiz do projeto e a pasta 'Crônicas e Transcrições'.
-    Destinos: archive/transcriptions/<MESA>/ e archive/chronicles/<MESA>/.
+    Destinos: archive/transcriptions/<TABLE>/ e archive/chronicles/<TABLE>/.
 
     - dry_run=True (padrão): só lista o que seria movido, por pasta de destino, sem alterar nada.
     - Um arquivo não é movido (e entra no relatório de conflitos) quando o destino já existe

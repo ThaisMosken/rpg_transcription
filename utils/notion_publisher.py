@@ -39,7 +39,7 @@ class NotionPublisher:
         name = self._clean_name(raw_name)
         name_lower = name.lower()
         if not name or len(name) > 60 or "nenhum" in name_lower: return None
-        if any(termo in name_lower for termo in self.generic_terms): return None
+        if any(generic_term in name_lower for generic_term in self.generic_terms): return None
 
         query_url = f"https://api.notion.com/v1/databases/{database_id}/query"
         payload = {"filter": {"property": "Nome", "title": {"equals": name}}}
@@ -101,12 +101,12 @@ class NotionPublisher:
         epic_title = lines[0].strip().replace("#", "").strip()
         full_text = "".join(lines)
 
-        def extrair(marker):
+        def extract_section(marker):
             match = re.search(f"{marker}:?(.*?)(?:\n\n|\n#|\n[A-Z]|$)", full_text, re.DOTALL | re.IGNORECASE)
             return [line_item.strip() for line_item in match.group(1).split('\n') if line_item.strip()] if match else []
 
         # NPCs específicos da mesa
-        npc_ids = [self.find_or_create_entry(config['DB_NPCS'], npc_name) for npc_name in extrair("NPCs encontrados")]
+        npc_ids = [self.find_or_create_entry(config['DB_NPCS'], npc_name) for npc_name in extract_section("NPCs encontrados")]
 
         # Monta as propriedades base
         properties = {

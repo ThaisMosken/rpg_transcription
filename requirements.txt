@@ -1,8 +1,16 @@
 faster-whisper
+
+# Teto de versão: o PyAV 19 removeu o argumento 'metadata_errors' de av.open(), que o
+# faster-whisper 1.2.1 ainda passa. Sem o teto, toda transcrição falha com TypeError.
+# Remover o teto quando o faster-whisper lançar versão compatível com o PyAV 19.
 av<19
+
 notion-client
 soundfile
 requests
 google-genai
+
+# Exigidas pelo ctranslate2 (faster-whisper) para rodar na GPU. O pré-carregamento é feito em
+# utils/cuda_preloader.py, chamado por src/transcription_processor.py.
 nvidia-cublas-cu12
 nvidia-cudnn-cu12==9.*

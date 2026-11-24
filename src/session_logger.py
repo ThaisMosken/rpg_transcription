@@ -78,12 +78,12 @@ def fetch_notion_session_dates(notion_token, notion_config, table_id):
 
             for page in data.get("results", []):
                 props = page.get("properties", {})
-                sessao_num = props.get("Sessão", {}).get("number")
-                data_obj = props.get("Data", {}).get("date")
-                start_date = data_obj.get("start") if data_obj else None
+                session_number = props.get("Sessão", {}).get("number")
+                date_obj = props.get("Data", {}).get("date")
+                start_date = date_obj.get("start") if date_obj else None
 
-                if sessao_num is not None and start_date:
-                    dates_map[int(sessao_num)] = start_date[:10]
+                if session_number is not None and start_date:
+                    dates_map[int(session_number)] = start_date[:10]
 
             has_more = data.get("has_more", False)
             next_cursor = data.get("next_cursor")
@@ -265,7 +265,7 @@ def generate_gemini_log(
     Fluxo unitário (Bloco 6): gera o log da sessão atual em output_path (workbench).
 
     A consolidação dos logs NÃO é feita aqui: ela é refeita pelo bloco 'Arquivar sessão'
-    (src/session_archiver.py), depois que o log já está em archive/logs/<MESA>/.
+    (src/session_archiver.py), depois que o log já está em archive/logs/<TABLE>/.
     """
     try:
         gemini_cfg = _load_gemini_config()
@@ -314,7 +314,7 @@ def process_backlog_logs(
     """
     Processa em lote (backlog) as sessões antigas já arquivadas, lendo as crônicas de
     `chronicles_folder` e as transcrições de `transcriptions_folder`, e gravando os logs
-    direto em `logs_folder` (archive/logs/<MESA>/), sem passar pelo workbench.
+    direto em `logs_folder` (archive/logs/<TABLE>/), sem passar pelo workbench.
     Recupera datas do Notion, respeita limites de RPM/RPD e consolida ao final.
     """
     for folder, label in ((chronicles_folder, "crônicas"), (transcriptions_folder, "transcrições")):
