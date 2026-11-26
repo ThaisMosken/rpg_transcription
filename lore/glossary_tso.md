@@ -37,6 +37,7 @@
 - Fremine
 - Frowode
 - Garaele
+- Garok
 - Golcuus
 - Gossa
 - Grandlejaw
@@ -64,6 +65,7 @@
 - Kellikilli
 - Kianka
 - Klaudel Kamven
+- Korr
 - Larnon Veddin
 - Lowarnizel
 - Malinia
@@ -102,6 +104,7 @@
 - Tera
 - Thawnia Browne
 - Thiala Sharne
+- Thok’var
 - Thorgran Ironquill
 - Toblen Stonehill
 - Trilena Stonehill
